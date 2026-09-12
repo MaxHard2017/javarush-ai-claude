@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <title>Угадай число</title>
+</head>
+<body>
+  <p>Счёт: <span id="score">0</span></p>
+  <input id="guess" type="number" placeholder="1–10">
+  <button id="check">Проверить</button>
+  <p id="message"></p>
+
+  <script>
+    let score = 0;
+    let secret = Math.floor(Math.random() * 10) + 1;
+
+    document.getElementById('check').addEventListener('click', function () {
+      const guess = Number(document.getElementById('guess').value);
+      if (guess === secret) {
+        document.getElementById('message').textContent = 'Угадал!';
+        score = score + 1;
+        // БАГ: значение score посчитано, но #score на экране не обновляется
+        secret = Math.floor(Math.random() * 10) + 1;
+      } else {
+        document.getElementById('message').textContent = 'Мимо, попробуй ещё';
+      }
+    });
+  </script>
+</body>
+</html>

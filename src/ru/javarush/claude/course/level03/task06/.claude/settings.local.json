@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node *)",
+      "Bash(command -v chromium-cli)",
+      "Bash(command -v chromium)",
+      "Bash(command -v google-chrome)",
+      "Bash(command -v playwright)",
+      "Bash(command -v npx)"
+    ]
+  }
+}

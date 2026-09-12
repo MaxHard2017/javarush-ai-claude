@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Разбей стену — арканоид</title>
+<style>
+  :root{
+    --bg-deep:#0d0221;
+    --bg-mid:#1b0442;
+    --accent:#00ffff;
+    --accent-2:#ff2bd6;
+    --gold:#ffd700;
+    --text-light:#f4f0ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{
+    height:100%;
+    background:radial-gradient(ellipse at center, var(--bg-mid), var(--bg-deep) 70%);
+    color:var(--text-light);
+    font-family:"Segoe UI", system-ui, -apple-system, sans-serif;
+    overflow:hidden;
+    user-select:none;
+    -webkit-user-select:none;
+    touch-action:none;              /* палец водит ракетку, а не скроллит страницу */
+  }
+  #wrap{position:relative;width:100%;height:100%;display:flex;flex-direction:column;}
+
+  /* ── Верхняя панель со счётом ─────────────────────────────────────── */
+  .hud{
+    display:flex;justify-content:center;gap:28px;flex-wrap:wrap;
+    padding:10px 14px;z-index:3;
+    pointer-events:none;                 /* клики проходят к полю */
+  }
+  .hud .box{text-align:center;min-width:74px;}
+  .hud .label{font-size:11px;font-weight:700;letter-spacing:1.5px;opacity:.7;text-transform:uppercase;}
+  .hud .val{font-size:26px;font-weight:800;line-height:1.1;}
+  .hud .val#score{color:var(--accent);text-shadow:0 0 12px rgba(0,255,255,.6);}
+  .hud .val#bricks{color:var(--accent-2);text-shadow:0 0 12px rgba(255,43,214,.6);}
+  #score.bump{animation:bump .18s ease-out;}
+  @keyframes bump{0%{transform:scale(1);}45%{transform:scale(1.3);}100%{transform:scale(1);}}
+
+  /* ── Игровое поле ─────────────────────────────────────────────────── */
+  #field{flex:1;position:relative;min-height:0;}
+  canvas{display:block;width:100%;height:100%;touch-action:none;}
+
+  /* ── Экраны старта и конца партии ─────────────────────────────────── */
+  .overlay{
+    position:absolute;inset:0;z-index:5;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+    background:rgba(13,2,33,.88);backdrop-filter:blur(4px);
+    text-align:center;padding:24px;
+    opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .overlay.show{opacity:1;pointer-events:auto;}
+  .overlay h1{
+    font-size:40px;font-weight:800;letter-spacing:1px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#fff;
+  }
+  .overlay .big-score{font-size:66px;font-weight:800;color:var(--accent);text-shadow:0 0 26px rgba(0,255,255,.6);line-height:1;}
+  .overlay .sub{font-size:16px;opacity:.85;max-width:360px;line-height:1.5;}
+  .overlay .best{font-size:15px;opacity:.7;}
+  .overlay .newbest{color:#c8ff00;font-weight:800;text-shadow:0 0 14px rgba(200,255,0,.6);}
+  .overlay button{
+    margin-top:6px;padding:14px 34px;border:none;border-radius:999px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    font-family:inherit;font-weight:800;font-size:19px;cursor:pointer;color:#0d0221;
+    box-shadow:0 6px 26px rgba(0,255,255,.35);transition:transform .1s ease, box-shadow .2s ease;
+  }
+  .overlay button:active{transform:scale(.95);}
+
+  /* ── Кнопка звука ─────────────────────────────────────────────────── */
+  #mute{
+    position:absolute;top:10px;right:12px;z-index:6;
+    background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);
+    border-radius:12px;width:42px;height:42px;font-size:19px;cursor:pointer;color:var(--text-light);
+  }
+  @media (max-width:520px){
+    .overlay h1{font-size:30px;}
+    .overlay .big-score{font-size:52px;}
+    .hud .val{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div class="hud">
+    <div class="box"><div class="label">Счёт</div><div class="val" id="score">0</div></div>
+    <div class="box"><div class="label">Кирпичи</div><div class="val" id="bricks">0</div></div>
+    <div class="box"><div class="label">Рекорд</div><div class="val" id="best">0</div></div>
+  </div>
+
+  <div id="field">
+    <canvas id="cv"></canvas>
+
+    <div class="overlay show" id="startOverlay">
+      <h1>Разбей стену</h1>
+      <div class="sub">Веди ракетку пальцем или мышкой. Не дай мячу улететь вниз — партия на этом кончается.</div>
+      <button id="startBtn">Играть</button>
+    </div>
+
+    <div class="overlay" id="overOverlay">
+      <h1 id="overTitle">Партия окончена</h1>
+      <div class="big-score" id="finalScore">0</div>
+      <div class="sub" id="finalSub">Кирпичей разбито: 0</div>
+      <div class="best" id="bestLine">Рекорд: 0</div>
+      <button id="againBtn">Играть снова</button>
+    </div>
+  </div>
+
+  <button id="mute" title="Звук">🔊</button>
+</div>
+
+<script>
+"use strict";
+
+/* ══════════════════════════════════════════════════════════════════════
+   Арканоид. Один файл, без внешних картинок и звуковых файлов:
+   звук синтезируется через Web Audio, графика рисуется на canvas.
+   ══════════════════════════════════════════════════════════════════════ */
+
+const $ = id => document.getElementById(id);
+const canvas = $('cv');
+const ctx = canvas.getContext('2d');
+
+/* ── Размеры поля. Пересчитываются при повороте телефона и ресайзе ──── */
+let W = 0, H = 0, DPR = 1;
+
+function resize(){
+  const rect = canvas.getBoundingClientRect();
+  DPR = Math.min(window.devicePixelRatio || 1, 2);   // ограничим 2, чтоб не грузить слабые устройства
+  W = rect.width;
+  H = rect.height;
+  canvas.width  = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  layoutBricks();
+  clampPaddle();
+}
+window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', () => setTimeout(resize, 120));
+
+/* ── Звук: короткие пики, генерируем сами ───────────────────────────── */
+let audioCtx = null, muted = false;
+
+function ensureAudio(){
+  if (!audioCtx){
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC) audioCtx = new AC();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}
+function beep(freq, dur, vol, type){
+  if (muted || !audioCtx) return;
+  const o = audioCtx.createOscillator();
+  const g = audioCtx.createGain();
+  o.type = type || 'square';
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(vol, audioCtx.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + dur);
+  o.connect(g); g.connect(audioCtx.destination);
+  o.start(); o.stop(audioCtx.currentTime + dur);
+}
+
+$('mute').addEventListener('click', () => {
+  muted = !muted;
+  $('mute').textContent = muted ? '🔇' : '🔊';
+});
+
+/* ── Состояние партии ───────────────────────────────────────────────── */
+const COLS = 8;             // кирпичей в ряду
+const ROWS = 5;             // рядов
+const BRICK_POINTS = 10;    // очков за обычный кирпич
+
+let bricks = [];            // {x, y, w, h, alive, color}
+let paddle = { x: 0, y: 0, w: 120, h: 14 };
+let ball   = { x: 0, y: 0, r: 8, vx: 0, vy: 0 };
+let score = 0;
+let broken = 0;
+let running = false;
+let best = Number(localStorage.getItem('bestArkanoid') || 0);
+$('best').textContent = best;
+
+const ROW_COLORS = ['#ff2bd6', '#ff5f6d', '#ffa62b', '#4dff88', '#00ffff'];
+
+/* Раскладываем стену под текущий размер поля. */
+function layoutBricks(){
+  const padTop = 60, padSide = 16, gap = 6;
+  const bw = (W - padSide * 2 - gap * (COLS - 1)) / COLS;
+  const bh = Math.max(16, Math.min(28, H * 0.045));
+  const alive = bricks.length ? bricks.map(b => b.alive) : null;
+
+  bricks = [];
+  for (let r = 0; r < ROWS; r++){
+    for (let c = 0; c < COLS; c++){
+      bricks.push({
+        x: padSide + c * (bw + gap),
+        y: padTop + r * (bh + gap),
+        w: bw, h: bh,
+        alive: alive ? alive[r * COLS + c] : true,
+        color: ROW_COLORS[r % ROW_COLORS.length]
+      });
+    }
+  }
+  paddle.w = Math.max(80, Math.min(150, W * 0.24));
+  paddle.y = H - 34;
+}
+
+function clampPaddle(){
+  paddle.x = Math.max(paddle.w / 2, Math.min(W - paddle.w / 2, paddle.x || W / 2));
+}
+
+/* ── Управление: мышь, палец, стрелки ───────────────────────────────── */
+function movePaddleTo(clientX){
+  const rect = canvas.getBoundingClientRect();
+  paddle.x = clientX - rect.left;
+  clampPaddle();
+}
+canvas.addEventListener('mousemove', e => movePaddleTo(e.clientX));
+canvas.addEventListener('touchstart', e => { ensureAudio(); movePaddleTo(e.touches[0].clientX); }, {passive:true});
+canvas.addEventListener('touchmove',  e => { movePaddleTo(e.touches[0].clientX); e.preventDefault(); }, {passive:false});
+window.addEventListener('keydown', e => {
+  const step = 34;
+  if (e.key === 'ArrowLeft')  { paddle.x -= step; clampPaddle(); }
+  if (e.key === 'ArrowRight') { paddle.x += step; clampPaddle(); }
+});
+
+/* ── Партия ─────────────────────────────────────────────────────────── */
+function startGame(){
+  ensureAudio();
+  resize();
+  bricks.forEach(b => b.alive = true);
+  score = 0;
+  broken = 0;
+  $('score').textContent = '0';
+  $('bricks').textContent = '0';
+
+  paddle.x = W / 2;
+  ball.x = W / 2;
+  ball.y = H - 70;
+  ball.r = Math.max(7, Math.min(11, W * 0.016));
+  const speed = Math.max(4.6, Math.min(7, H * 0.011));
+  ball.vx = speed * (Math.random() < 0.5 ? -0.7 : 0.7);
+  ball.vy = -speed;
+
+  $('startOverlay').classList.remove('show');
+  $('overOverlay').classList.remove('show');
+  running = true;
+
+  // Журнал запуска: по нему видно, что студент действительно играл.
+  console.log('Арканоид: старт партии');
+}
+
+function endGame(won){
+  running = false;
+  const isNewBest = score > best;
+  if (isNewBest){ best = score; localStorage.setItem('bestArkanoid', best); }
+  $('best').textContent = best;
+
+  $('overTitle').textContent = won ? 'Стена разбита!' : 'Партия окончена';
+  $('finalScore').textContent = score;
+  $('finalSub').textContent = 'Кирпичей разбито: ' + broken;
+  $('bestLine').innerHTML = isNewBest
+    ? '<span class="newbest">Новый рекорд!</span>'
+    : 'Рекорд: ' + best;
+  $('overOverlay').classList.add('show');
+
+  beep(won ? 880 : 180, 0.4, 0.16, won ? 'triangle' : 'sawtooth');
+
+  // Итоговая строка — то, что читает проверка «набери N очков».
+  console.log('Арканоид: игра окончена. Счёт: ' + score + ', кирпичей разбито: ' + broken);
+}
+
+$('startBtn').addEventListener('click', startGame);
+$('againBtn').addEventListener('click', startGame);
+
+/* ── Физика и отрисовка ─────────────────────────────────────────────── */
+function bumpScore(points){
+  score += points;
+  broken += 1;
+  $('score').textContent = score;
+  $('bricks').textContent = broken;
+  const el = $('score');
+  el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump');
+}
+
+function step(){
+  if (running){
+    ball.x += ball.vx;
+    ball.y += ball.vy;
+
+    // Стены слева, справа и сверху — мяч отскакивает.
+    if (ball.x - ball.r < 0){ ball.x = ball.r; ball.vx *= -1; beep(420, .05, .08); }
+    if (ball.x + ball.r > W){ ball.x = W - ball.r; ball.vx *= -1; beep(420, .05, .08); }
+    if (ball.y - ball.r < 0){ ball.y = ball.r; ball.vy *= -1; beep(420, .05, .08); }
+
+    // Ракетка. Точка касания задаёт угол отскока: у края — острее.
+    if (ball.vy > 0 &&
+        ball.y + ball.r >= paddle.y &&
+        ball.y - ball.r <= paddle.y + paddle.h &&
+        ball.x >= paddle.x - paddle.w / 2 &&
+        ball.x <= paddle.x + paddle.w / 2){
+      const hit = (ball.x - paddle.x) / (paddle.w / 2);   // от -1 до 1
+      const speed = Math.hypot(ball.vx, ball.vy);
+      const angle = hit * 1.05;                           // максимум ~60°
+      ball.vx = speed * Math.sin(angle);
+      ball.vy = -Math.abs(speed * Math.cos(angle));
+      ball.y = paddle.y - ball.r - 1;
+      beep(660, .06, .12);
+    }
+
+    // Кирпичи.
+    for (const b of bricks){
+      if (!b.alive) continue;
+      if (ball.x + ball.r > b.x && ball.x - ball.r < b.x + b.w &&
+          ball.y + ball.r > b.y && ball.y - ball.r < b.y + b.h){
+        b.alive = false;
+        bumpScore(BRICK_POINTS);
+        beep(880, .07, .14, 'triangle');
+        // Отскок по той оси, с которой мяч подошёл ближе к грани.
+        const overlapX = Math.min(Math.abs(ball.x - b.x), Math.abs(ball.x - (b.x + b.w)));
+        const overlapY = Math.min(Math.abs(ball.y - b.y), Math.abs(ball.y - (b.y + b.h)));
+        if (overlapX < overlapY) ball.vx *= -1; else ball.vy *= -1;
+        break;
+      }
+    }
+
+    // Мяч улетел вниз мимо ракетки — партия кончилась.
+    if (ball.y - ball.r > H) endGame(false);
+
+    // Стена разобрана полностью.
+    if (running && bricks.every(b => !b.alive)) endGame(true);
+  }
+
+  draw();
+  requestAnimationFrame(step);
+}
+
+function draw(){
+  ctx.clearRect(0, 0, W, H);
+
+  for (const b of bricks){
+    if (!b.alive) continue;
+    ctx.fillStyle = b.color;
+    ctx.shadowColor = b.color;
+    ctx.shadowBlur = 12;
+    roundRect(b.x, b.y, b.w, b.h, 4);
+    ctx.fill();
+  }
+  ctx.shadowBlur = 0;
+
+  // Ракетка.
+  ctx.fillStyle = '#f4f0ff';
+  ctx.shadowColor = '#00ffff';
+  ctx.shadowBlur = 16;
+  roundRect(paddle.x - paddle.w / 2, paddle.y, paddle.w, paddle.h, 7);
+  ctx.fill();
+
+  // Мяч.
+  ctx.beginPath();
+  ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+  ctx.fillStyle = '#00ffff';
+  ctx.shadowColor = '#00ffff';
+  ctx.shadowBlur = 20;
+  ctx.fill();
+  ctx.shadowBlur = 0;
+}
+
+function roundRect(x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y,     x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x,     y + h, r);
+  ctx.arcTo(x,     y + h, x,     y,     r);
+  ctx.arcTo(x,     y,     x + w, y,     r);
+  ctx.closePath();
+}
+
+/* ── Поехали ────────────────────────────────────────────────────────── */
+resize();
+paddle.x = W / 2;
+ball.x = W / 2;
+ball.y = H - 70;
+requestAnimationFrame(step);
+</script>
+</body>
+</html>

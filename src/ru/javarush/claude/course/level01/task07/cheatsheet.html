@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Шпаргалка по терминалу</title>
+<style>
+  :root{
+    --bg-deep:#0d0221;
+    --bg-mid:#1b0442;
+    --accent:#00ffff;
+    --accent-2:#ff2bd6;
+    --lime:#c8ff00;
+    --text-light:#f4f0ff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:radial-gradient(ellipse at top, var(--bg-mid), var(--bg-deep) 65%);
+    color:var(--text-light);
+    font-family:"Segoe UI", system-ui, -apple-system, sans-serif;
+    padding:32px 18px 56px;
+  }
+  .page{max-width:760px;margin:0 auto;}
+
+  header{text-align:center;margin-bottom:34px;}
+  h1{
+    font-size:clamp(30px, 7vw, 46px);font-weight:800;letter-spacing:1px;
+    background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#fff;
+  }
+  .subtitle{margin-top:10px;font-size:16px;opacity:.75;line-height:1.6;}
+
+  .cards{display:grid;gap:16px;}
+  .card{
+    background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.12);
+    border-left:4px solid var(--accent);
+    border-radius:16px;
+    padding:20px 22px;
+    transition:transform .15s ease, box-shadow .2s ease;
+  }
+  .card:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,255,255,.18);}
+  .card:nth-child(2){border-left-color:var(--accent-2);}
+  .card:nth-child(3){border-left-color:var(--lime);}
+  .card:nth-child(4){border-left-color:#ffa62b;}
+
+  .cmd{
+    display:inline-block;
+    font-family:"SF Mono", Menlo, Consolas, monospace;
+    font-size:26px;font-weight:800;
+    color:var(--accent);text-shadow:0 0 14px rgba(0,255,255,.5);
+  }
+  .card:nth-child(2) .cmd{color:var(--accent-2);text-shadow:0 0 14px rgba(255,43,214,.5);}
+  .card:nth-child(3) .cmd{color:var(--lime);text-shadow:0 0 14px rgba(200,255,0,.5);}
+  .card:nth-child(4) .cmd{color:#ffa62b;text-shadow:0 0 14px rgba(255,166,43,.5);}
+
+  .from{font-size:13px;opacity:.6;margin-left:10px;font-style:italic;}
+  .what{margin-top:10px;font-size:17px;line-height:1.6;}
+  .example{
+    margin-top:14px;padding:12px 14px;
+    background:rgba(0,0,0,.35);border-radius:10px;
+    font-family:"SF Mono", Menlo, Consolas, monospace;font-size:14px;line-height:1.7;
+    overflow-x:auto;white-space:pre;
+  }
+  .example .prompt{color:var(--lime);}
+  .example .out{opacity:.65;}
+
+  footer{margin-top:34px;text-align:center;font-size:14px;opacity:.6;line-height:1.7;}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <h1>Шпаргалка по терминалу</h1>
+    <div class="subtitle">Четыре команды, с которых начинается работа в чёрном окне.<br>У терминала всегда есть текущая папка — эти команды про неё.</div>
+  </header>
+
+  <div class="cards">
+
+    <div class="card">
+      <span class="cmd">pwd</span><span class="from">от print working directory</span>
+      <div class="what">Показывает, в какой папке ты сейчас находишься. Первая команда, когда непонятно, где ты вообще.</div>
+      <div class="example"><span class="prompt">$</span> pwd
+<span class="out">/Users/tema/projects</span></div>
+    </div>
+
+    <div class="card">
+      <span class="cmd">ls</span><span class="from">от list</span>
+      <div class="what">Печатает список файлов и папок «здесь» — в текущей папке. Оглядеться вокруг.</div>
+      <div class="example"><span class="prompt">$</span> ls
+<span class="out">arkanoid.html   clicker.html   cheatsheet.html</span></div>
+    </div>
+
+    <div class="card">
+      <span class="cmd">cd</span><span class="from">от change directory</span>
+      <div class="what">Переход в другую папку. <code>cd games</code> — зайти внутрь, <code>cd ..</code> — подняться на уровень выше.</div>
+      <div class="example"><span class="prompt">$</span> cd games
+<span class="prompt">$</span> pwd
+<span class="out">/Users/tema/projects/games</span></div>
+    </div>
+
+    <div class="card">
+      <span class="cmd">mkdir</span><span class="from">от make directory</span>
+      <div class="what">Создаёт новую папку. Нужной папки ещё нет — сделай её этой командой и сразу зайди через <code>cd</code>.</div>
+      <div class="example"><span class="prompt">$</span> mkdir my-project
+<span class="prompt">$</span> cd my-project</div>
+    </div>
+
+  </div>
+
+  <footer>Значок <code>#</code> в командах — это комментарий, пояснение для человека.<br>Компьютер его не выполняет.</footer>
+</div>
+
+<script>
+  console.log('Шпаргалка по терминалу: страница открыта, команд на странице — 4 (pwd, ls, cd, mkdir)');
+</script>
+</body>
+</html>

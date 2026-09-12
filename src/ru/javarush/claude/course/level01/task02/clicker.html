@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Лопни шары</title>
+  <style>
+    :root {
+      --bg: #090d1f;
+      --panel: rgba(17, 25, 55, 0.88);
+      --text: #f7f8ff;
+      --muted: #aab4d6;
+      --accent: #70f6ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; min-height: 100%; }
+
+    body {
+      min-height: 100vh;
+      overflow: hidden;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 20% 20%, rgba(64, 45, 143, .36), transparent 32%),
+        radial-gradient(circle at 80% 75%, rgba(0, 165, 180, .2), transparent 30%),
+        var(--bg);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    .hud {
+      position: fixed;
+      z-index: 10;
+      top: 16px;
+      left: 50%;
+      display: flex;
+      gap: 10px;
+      width: min(520px, calc(100% - 24px));
+      justify-content: center;
+      transform: translateX(-50%);
+      pointer-events: none;
+    }
+
+    .stat {
+      min-width: 112px;
+      padding: 10px 16px;
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 16px;
+      background: var(--panel);
+      box-shadow: 0 8px 30px rgba(0,0,0,.25);
+      text-align: center;
+      backdrop-filter: blur(10px);
+    }
+
+    .stat-label {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+
+    .stat-value { display: block; margin-top: 2px; font-size: 25px; font-weight: 900; }
+    #timer { color: var(--accent); }
+
+    #field {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+    }
+
+    .bubble {
+      position: absolute;
+      border: 2px solid rgba(255,255,255,.7);
+      border-radius: 50%;
+      cursor: pointer;
+      transform: translate(-50%, -50%);
+      box-shadow: inset -9px -11px 16px rgba(0,0,0,.18), inset 8px 7px 12px rgba(255,255,255,.4), 0 0 22px currentColor;
+      animation: float 1.8s ease-in-out infinite alternate;
+      will-change: transform;
+    }
+
+    .bubble::after {
+      position: absolute;
+      top: 16%;
+      left: 22%;
+      width: 24%;
+      height: 15%;
+      border-radius: 50%;
+      background: rgba(255,255,255,.8);
+      content: "";
+      filter: blur(2px);
+      transform: rotate(-30deg);
+    }
+
+    .bubble.pop { animation: pop .16s ease-out forwards; pointer-events: none; }
+
+    @keyframes float { to { margin-top: -7px; } }
+    @keyframes pop { to { opacity: 0; transform: translate(-50%, -50%) scale(1.55); } }
+
+    .screen {
+      position: fixed;
+      z-index: 20;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background: rgba(4, 7, 20, .72);
+      backdrop-filter: blur(7px);
+    }
+
+    .screen.hidden { display: none; }
+
+    .card {
+      width: min(420px, 100%);
+      padding: 34px 26px;
+      border: 1px solid rgba(255,255,255,.16);
+      border-radius: 28px;
+      background: linear-gradient(145deg, rgba(28,39,82,.97), rgba(12,18,43,.97));
+      box-shadow: 0 22px 70px rgba(0,0,0,.45);
+      text-align: center;
+    }
+
+    h1 { margin: 0 0 8px; font-size: clamp(32px, 9vw, 52px); line-height: 1; }
+    .subtitle { margin: 0 0 24px; color: var(--muted); line-height: 1.5; }
+    .result { margin: 20px 0 24px; font-size: 21px; }
+    .result strong { display: block; margin-top: 5px; color: var(--accent); font-size: 54px; line-height: 1; }
+
+    button {
+      min-height: 52px;
+      padding: 0 28px;
+      border: 0;
+      border-radius: 16px;
+      color: #07101e;
+      background: linear-gradient(135deg, #72f7ff, #a7ff9d);
+      box-shadow: 0 8px 24px rgba(91, 243, 233, .25);
+      cursor: pointer;
+      font: inherit;
+      font-size: 16px;
+      font-weight: 900;
+      transition: transform .15s, filter .15s;
+    }
+
+    button:hover { filter: brightness(1.08); transform: translateY(-2px); }
+    button:active { transform: translateY(1px) scale(.98); }
+
+    @media (max-width: 420px) {
+      .hud { top: 10px; gap: 6px; }
+      .stat { min-width: 94px; padding: 8px 10px; }
+      .stat-value { font-size: 22px; }
+      .card { padding: 28px 20px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hud" aria-label="Игровая статистика">
+    <div class="stat"><span class="stat-label">Счёт</span><span class="stat-value" id="score">0</span></div>
+    <div class="stat"><span class="stat-label">Время</span><span class="stat-value" id="timer">30</span></div>
+    <div class="stat"><span class="stat-label">Рекорд</span><span class="stat-value" id="best">0</span></div>
+  </header>
+
+  <main id="field" aria-label="Игровое поле"></main>
+
+  <section class="screen" id="endScreen" aria-live="polite">
+    <div class="card">
+      <h1>Лопни шары</h1>
+      <p class="subtitle">Лопай яркие шары, пока время не вышло!</p>
+      <div class="result">Твой результат<strong id="finalScore">0</strong></div>
+      <button id="restart" type="button">Играть снова</button>
+    </div>
+  </section>
+
+  <script>
+    console.log('--- Игра собрана агентом по текстовой постановке, а не написана вручную ---');
+    const field = document.getElementById('field');
+    const scoreElement = document.getElementById('score');
+    const timerElement = document.getElementById('timer');
+    const bestElement = document.getElementById('best');
+    const endScreen = document.getElementById('endScreen');
+    const finalScoreElement = document.getElementById('finalScore');
+    const restartButton = document.getElementById('restart');
+
+    const ROUND_SECONDS = 30;
+    const BUBBLE_COUNT = 7;
+    const colors = ['#ff3cac', '#784bff', '#00e5ff', '#31f28a', '#ffe14a', '#ff704d'];
+    let score = 0;
+    let secondsLeft = ROUND_SECONDS;
+    let timerId = null;
+    let gameActive = false;
+    let bestScore = Number(localStorage.getItem('bubble-best-score')) || 0;
+    bestElement.textContent = bestScore;
+
+    function randomBetween(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+
+    function createBubble() {
+      if (!gameActive) return;
+      const bubble = document.createElement('div');
+      const size = randomBetween(42, 112);
+      const safeTop = 105;
+      const x = randomBetween(size / 2, Math.max(size / 2, window.innerWidth - size / 2));
+      const y = randomBetween(safeTop + size / 2, Math.max(safeTop + size / 2, window.innerHeight - size / 2));
+      const color = colors[randomBetween(0, colors.length - 1)];
+
+      bubble.className = 'bubble';
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      bubble.style.left = `${x}px`;
+      bubble.style.top = `${y}px`;
+      bubble.style.color = color;
+      bubble.style.background = `radial-gradient(circle at 32% 28%, #fff9, ${color} 35%, ${color} 72%, #0005)`;
+      bubble.setAttribute('aria-label', 'Лопнуть шар');
+
+      bubble.addEventListener('pointerdown', (event) => {
+        event.preventDefault();
+        if (!gameActive || bubble.classList.contains('pop')) return;
+        score += 1;
+        scoreElement.textContent = score;
+        bubble.classList.add('pop');
+        setTimeout(() => bubble.remove(), 170);
+        createBubble();
+      }, { once: true });
+
+      field.appendChild(bubble);
+    }
+
+    function clearBubbles() {
+      field.replaceChildren();
+    }
+
+    function finishGame() {
+      if (!gameActive) return;
+      gameActive = false;
+      clearInterval(timerId);
+      clearBubbles();
+      finalScoreElement.textContent = score;
+      endScreen.classList.remove('hidden');
+
+      if (score > bestScore) {
+        bestScore = score;
+        localStorage.setItem('bubble-best-score', String(bestScore));
+        bestElement.textContent = bestScore;
+        console.log(`Новый рекорд: ${bestScore}`);
+      }
+      console.log(`Конец игры: счёт ${score}`);
+    }
+
+    function startGame() {
+      clearInterval(timerId);
+      clearBubbles();
+      score = 0;
+      secondsLeft = ROUND_SECONDS;
+      gameActive = true;
+      scoreElement.textContent = score;
+      timerElement.textContent = secondsLeft;
+      endScreen.classList.add('hidden');
+      for (let i = 0; i < BUBBLE_COUNT; i += 1) createBubble();
+      console.log('Старт новой партии');
+      timerId = setInterval(() => {
+        secondsLeft -= 1;
+        timerElement.textContent = secondsLeft;
+        if (secondsLeft <= 0) finishGame();
+      }, 1000);
+    }
+
+    restartButton.addEventListener('click', startGame);
+    startGame();
+  </script>
+</body>
+</html>

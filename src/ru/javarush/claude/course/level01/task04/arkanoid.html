@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Арканоид</title>
+<style>
+:root{font-family:Arial,sans-serif;color:#f4f7ff;background:#050711}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:18px;background:radial-gradient(circle at 50% 0,#17234b 0,#050711 58%);touch-action:none}.wrap{width:min(840px,100%)}header{display:flex;align-items:center;justify-content:space-between;background:#11182b;border:1px solid #263354;border-radius:12px 12px 0 0;padding:14px 18px;gap:10px}h1{margin:0;color:#55e6ff;font-size:clamp(24px,5vw,32px);letter-spacing:2px} .stats{display:flex;align-items:center;gap:18px;font-size:18px}.stat b{color:#55e6ff}button{border:0;border-radius:10px;background:#55e6ff;color:#050711;font-size:16px;font-weight:700;min-height:48px;padding:0 24px;cursor:pointer}button:hover{filter:brightness(1.12)}canvas{display:block;width:100%;height:auto;aspect-ratio:4/3;background:#080b18;border:1px solid #263354;border-top:0;border-radius:0 0 12px 12px;box-shadow:0 14px 40px #0008;touch-action:none}.stage{position:relative}.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;background:#050711cc;border-radius:0 0 12px 12px}.card{padding:24px}.card h2{font-size:32px;margin:0 0 10px;color:#55e6ff}.card p{color:#9da8c7;margin:0 0 22px;font-size:18px}.hidden{display:none}.hint{color:#9da8c7;text-align:center;margin:12px 0 0;font-size:13px}@media(max-width:600px){body{padding:8px;align-items:flex-start;padding-top:16px}.stats{gap:8px;font-size:14px}header{padding:10px}header button{min-height:42px;padding:0 12px;font-size:14px}}
+</style>
+</head>
+<body>
+<main class="wrap">
+<header><h1>АРКАНОИД</h1><div class="stats"><span class="stat">Счёт: <b id="score">0</b></span><span class="stat">Жизни: <b id="lives">1</b></span><button id="pauseBtn">Пауза</button></div></header>
+<section class="stage"><canvas id="game" width="800" height="600"></canvas>
+<div id="overlay" class="overlay"><div class="card"><h2 id="overlayTitle">АРКАНОИД</h2><p id="overlayText">Разбей все кирпичи</p><button id="actionBtn">Начать игру</button></div></div></section>
+<p class="hint">← → / мышь / палец — ракетка · P — пауза</p>
+</main>
+<script>
+'use strict';
+const canvas=document.querySelector('#game'),ctx=canvas.getContext('2d');
+const scoreEl=document.querySelector('#score'),livesEl=document.querySelector('#lives');
+const overlay=document.querySelector('#overlay'),titleEl=document.querySelector('#overlayTitle'),textEl=document.querySelector('#overlayText'),actionBtn=document.querySelector('#actionBtn'),pauseBtn=document.querySelector('#pauseBtn');
+const W=800,H=600, colors=['#ff4d6d','#ff8c42','#ffd166','#7ee081','#8b7cff'];
+let state='start',score=0,lives=1,bricks=[],last=0,raf=0,keys={left:false,right:false},audio;
+const paddle={x:345,y:560,w:110,h:14};const ball={x:400,y:540,r:8,vx:155,vy:-155,speed:220};
+function makeBricks(){bricks=[];for(let row=0;row<5;row++)for(let col=0;col<10;col++)bricks.push({x:34+col*74,y:60+row*28,w:68,h:22,color:colors[row],alive:true})}
+function resetBall(){paddle.x=345;ball.x=400;ball.y=540;ball.speed=220;ball.vx=155;ball.vy=-155}
+function updateHud(){scoreEl.textContent=score;livesEl.textContent=lives}
+function show(title,text,button){titleEl.textContent=title;textEl.textContent=text;actionBtn.textContent=button;overlay.classList.remove('hidden')}
+function hide(){overlay.classList.add('hidden')}
+function tone(freq,duration){if(!audio)return;const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=freq;o.type='square';g.gain.setValueAtTime(.035,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+duration);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+duration)}
+function startAudio(){if(!audio)audio=new(window.AudioContext||window.webkitAudioContext)();if(audio.state==='suspended')audio.resume()}
+function startGame(){startAudio();score=0;lives=1;makeBricks();resetBall();updateHud();state='playing';hide();pauseBtn.textContent='Пауза';tone(440,.08);console.log('Игра началась');last=performance.now();cancelAnimationFrame(raf);raf=requestAnimationFrame(loop)}
+function continueGame(){startAudio();resetBall();state='playing';hide();pauseBtn.textContent='Пауза';last=performance.now();raf=requestAnimationFrame(loop)}
+function endGame(win){state=win?'victory':'gameover';pauseBtn.textContent='Пауза';show(win?'Победа!':'Игра окончена','Итоговый счёт: '+score,win?'Играть снова':'Начать заново');tone(win?523:330,.16);if(win){setTimeout(()=>{tone(659,.16);setTimeout(()=>tone(784,.18),170)},170);console.log('Победа, итоговый счёт: '+score)}else{setTimeout(()=>tone(220,.2),180);console.log('Поражение, итоговый счёт: '+score)}}
+function loseLife(){lives--;updateHud();tone(140,.2);if(lives<=0){endGame(false);return}state='life-lost';show('Жизнь потеряна','Осталось жизней: '+lives,'Продолжить')}
+function movePaddle(clientX){const r=canvas.getBoundingClientRect();paddle.x=(clientX-r.left)*W/r.width-paddle.w/2;paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x))}
+function togglePause(){if(state==='playing'){state='paused';pauseBtn.textContent='Продолжить';show('Пауза','Игра остановлена','Продолжить')}else if(state==='paused'){state='playing';hide();pauseBtn.textContent='Пауза';last=performance.now();raf=requestAnimationFrame(loop)}}
+function inputKey(down,e){if(e.key==='ArrowLeft'||e.key==='ArrowRight')e.preventDefault();if(e.key==='ArrowLeft')keys.left=down;if(e.key==='ArrowRight')keys.right=down;if(down&&e.key.toLowerCase()==='p')togglePause()}
+addEventListener('keydown',e=>inputKey(true,e));addEventListener('keyup',e=>inputKey(false,e));canvas.addEventListener('mousemove',e=>movePaddle(e.clientX));canvas.addEventListener('pointermove',e=>{if(e.pointerType==='touch'){e.preventDefault();movePaddle(e.clientX)}});pauseBtn.addEventListener('click',togglePause);actionBtn.addEventListener('click',()=>{if(state==='start'||state==='victory'||state==='gameover')startGame();else if(state==='life-lost'||state==='paused')continueGame()});
+function hit(a,b){return a.x+a.r>b.x&&a.x-a.r<b.x+b.w&&a.y+a.r>b.y&&a.y-a.r<b.y+b.h}
+function update(dt){if(keys.left&&!keys.right)paddle.x-=430*dt;if(keys.right&&!keys.left)paddle.x+=430*dt;paddle.x=Math.max(0,Math.min(W-paddle.w,paddle.x));let nx=ball.x+ball.vx*dt,ny=ball.y+ball.vy*dt;if(nx-ball.r<0||nx+ball.r>W){ball.vx*=-1;nx=Math.max(ball.r,Math.min(W-ball.r,nx));tone(220,.04)}if(ny-ball.r<0){ball.vy=Math.abs(ball.vy);ny=ball.r;tone(220,.04)}ball.x=nx;ball.y=ny;
+if(ball.vy>0&&hit(ball,paddle)&&ball.y-ball.r<paddle.y+paddle.h){const ratio=(ball.x-(paddle.x+paddle.w/2))/(paddle.w/2);ball.vx=ratio*ball.speed*1.25;const v=Math.sqrt(Math.max(1,ball.speed*ball.speed-ball.vx*ball.vx));ball.vy=-v;ball.y=paddle.y-ball.r;tone(220,.04)}
+for(const b of bricks)if(b.alive&&hit(ball,b)){b.alive=false;score+=10;updateHud();const overlapX=Math.min(ball.x+ball.r-b.x,b.x+b.w-(ball.x-ball.r)),overlapY=Math.min(ball.y+ball.r-b.y,b.y+b.h-(ball.y-ball.r));if(overlapX<overlapY)ball.vx*=-1;else ball.vy*=-1;tone(660,.08);const destroyed=bricks.filter(x=>x.alive===false).length;if(destroyed%10===0)ball.speed=Math.min(480,ball.speed*1.1);break}
+if(bricks.every(b=>!b.alive)){endGame(true);return}if(ball.y-ball.r>H)loseLife()}
+function draw(){ctx.clearRect(0,0,W,H);ctx.fillStyle='#080b18';ctx.fillRect(0,0,W,H);for(const b of bricks)if(b.alive){ctx.fillStyle=b.color;ctx.shadowColor=b.color;ctx.shadowBlur=10;ctx.fillRect(b.x,b.y,b.w,b.h);ctx.shadowBlur=0}ctx.fillStyle='#55e6ff';ctx.shadowColor='#55e6ff';ctx.shadowBlur=16;ctx.fillRect(paddle.x,paddle.y,paddle.w,paddle.h);ctx.fillStyle='#fff';ctx.shadowColor='#fff';ctx.beginPath();ctx.arc(ball.x,ball.y,ball.r,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0}
+function loop(now){if(state!=='playing'){draw();return}const dt=Math.min((now-last)/1000,.025);last=now;update(dt);draw();if(state==='playing')raf=requestAnimationFrame(loop)}
+makeBricks();draw();
+</script>
+</body>
+</html>

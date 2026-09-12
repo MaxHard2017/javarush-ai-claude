@@ -1,0 +1,770 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Лопни шары</title>
+<style>
+  :root{
+    --bg-top:#0d0221;      /* верх градиентного фона */
+    --bg-bottom:#1b0442;   /* низ градиентного фона */
+    --text-light:#f5f3ff;
+    --accent:#00ffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    color:var(--text-light);
+    background:#0d0221;
+    display:flex;align-items:center;justify-content:center;
+    min-height:100vh;
+    overflow:hidden;
+    user-select:none;touch-action:none;
+  }
+  .stage{
+    position:relative;
+    /* Мобильный/узкий: колонка. Десктоп: разворачиваем на весь экран (ярче, ниже медиазапрос). */
+    width:min(100vw,540px);
+    height:min(100vh,860px);
+    max-height:100vh;
+    overflow:hidden;
+    /* лёгкая рамка-свечение, чтобы «дорого» смотрелось на десктопе */
+    box-shadow:0 0 0 1px rgba(255,255,255,.05), 0 20px 80px rgba(0,0,0,.6);
+  }
+  /* ДЕСКТОП: широкий экран — игра на весь экран, без узкой колонки (ярче, эффектнее). */
+  @media (min-width:760px){
+    .stage{
+      width:100vw;
+      height:100vh;
+      max-height:100vh;
+      box-shadow:none;                 /* на весь экран рамка не нужна */
+    }
+  }
+  /* Canvas занимает всю сцену, на нём — фон, шары, частицы */
+  #game{position:absolute;inset:0;width:100%;height:100%;display:block;}
+
+  /* HUD поверх canvas */
+  .hud{
+    position:absolute;left:0;right:0;top:0;
+    display:flex;align-items:flex-start;justify-content:space-between;
+    padding:16px 18px;
+    pointer-events:none;                 /* клики проходят к canvas */
+    z-index:2;
+  }
+  .hud .box{
+    background:rgba(10,2,30,.45);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:12px;
+    padding:8px 14px;
+    backdrop-filter:blur(4px);
+    text-align:center;
+  }
+  .hud .label{font-size:11px;font-weight:700;letter-spacing:1.5px;opacity:.7;text-transform:uppercase;}
+  .hud .val{font-size:26px;font-weight:800;line-height:1.1;}
+  .hud .val#score{color:var(--accent);text-shadow:0 0 12px rgba(0,255,255,.6);}
+  #score.bump{animation:bump .18s ease-out;}
+  @keyframes bump{0%{transform:scale(1);}45%{transform:scale(1.35);}100%{transform:scale(1);}}
+  .hud .val#timer{color:#ff2bd6;text-shadow:0 0 12px rgba(255,43,214,.6);}
+  #timer.low{color:#ff3b3b;text-shadow:0 0 14px rgba(255,59,59,.8);animation:tickpulse .5s ease-in-out infinite;}
+  @keyframes tickpulse{0%,100%{transform:scale(1);}50%{transform:scale(1.18);}}
+
+  /* Кнопка mute — единственный кликабельный элемент HUD */
+  .mute{
+    pointer-events:auto;
+    position:absolute;top:16px;left:50%;transform:translateX(-50%);
+    background:rgba(10,2,30,.45);
+    border:1px solid rgba(255,255,255,.12);
+    border-radius:50%;
+    width:44px;height:44px;
+    font-size:20px;cursor:pointer;color:var(--text-light);
+    display:flex;align-items:center;justify-content:center;
+    backdrop-filter:blur(4px);
+    transition:transform .05s;
+  }
+  .mute:active{transform:translateX(-50%) scale(.9);}
+
+  /* Подсказка-тост: поверх игры, СКВОЗЬ неё проходят клики (pointer-events:none), сама тает */
+  #hintToast{
+    position:absolute; top:22%; left:50%; transform:translateX(-50%);
+    z-index:4; pointer-events:none; text-align:center;
+    padding:18px 26px; border-radius:16px;
+    background:radial-gradient(ellipse at center, rgba(27,4,66,.55), rgba(13,2,33,.35));
+    backdrop-filter:blur(2px);
+    animation:hintFade 3.2s ease-in forwards;   /* показать → подержать → растворить */
+  }
+  #hintToast .hint-title{font-size:34px;font-weight:800;color:var(--accent);
+    text-shadow:0 0 20px rgba(0,255,255,.6);margin-bottom:6px;}
+  #hintToast .hint-sub{font-size:15px;opacity:.9;}
+  @keyframes hintFade{
+    0%{opacity:0; transform:translateX(-50%) translateY(-8px);}
+    12%{opacity:1; transform:translateX(-50%) translateY(0);}
+    70%{opacity:1;}
+    100%{opacity:0; transform:translateX(-50%) translateY(-6px);}
+  }
+
+  /* Оверлеи: старт и game over */
+  .overlay{
+    position:absolute;inset:0;z-index:3;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;
+    text-align:center;padding:28px;
+    background:radial-gradient(ellipse at center, rgba(27,4,66,.72), rgba(13,2,33,.92));
+    opacity:0;pointer-events:none;transition:opacity .25s ease;
+  }
+  .overlay.show{opacity:1;pointer-events:auto;}
+  .overlay h1{
+    font-size:44px;font-weight:800;line-height:1.05;letter-spacing:-1px;
+    background:linear-gradient(90deg,#00ffff,#ff2bd6,#c8ff00);
+    -webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:#fff;
+    text-shadow:0 0 24px rgba(255,43,214,.35);
+  }
+  .overlay .big-score{font-size:72px;font-weight:800;color:var(--accent);text-shadow:0 0 26px rgba(0,255,255,.6);line-height:1;}
+  .overlay .sub{font-size:16px;opacity:.85;max-width:340px;}
+  .overlay .best{font-size:15px;opacity:.7;}
+  .overlay .newbest{color:#c8ff00;font-weight:800;text-shadow:0 0 14px rgba(200,255,0,.6);}
+  .overlay button{
+    font-family:inherit;font-weight:800;font-size:20px;cursor:pointer;
+    color:#0d0221;border:none;border-radius:40px;
+    padding:16px 44px;
+    background:linear-gradient(90deg,#00ffff,#c8ff00);
+    box-shadow:0 8px 30px rgba(0,255,255,.35);
+    transition:transform .06s, box-shadow .2s;
+  }
+  .overlay button:hover{box-shadow:0 10px 40px rgba(0,255,255,.5);}
+  .overlay button:active{transform:scale(.95);}
+
+  @media (max-width:420px){
+    .overlay h1{font-size:34px;}
+    .overlay .big-score{font-size:60px;}
+    .hud .val{font-size:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="stage" id="stage">
+  <canvas id="game"></canvas>
+
+  <div class="hud">
+    <div class="box"><div class="label">Счёт</div><div class="val" id="score">0</div></div>
+    <div class="box"><div class="label">Время</div><div class="val" id="timer">30</div></div>
+  </div>
+  <button class="mute" id="mute" title="Звук">🔊</button>
+
+  <!-- Подсказка-тост: показывается СРАЗУ поверх уже идущей игры, кликам не мешает, плавно исчезает -->
+  <div id="hintToast">
+    <div class="hint-title">Лопни шары!</div>
+    <div class="hint-sub">Кликай по неоновым шарам — успей поймать больше за 30 секунд</div>
+  </div>
+
+  <!-- Экран конца игры -->
+  <div class="overlay" id="overOverlay">
+    <h1>Время вышло!</h1>
+    <div class="big-score" id="finalScore">0</div>
+    <p class="best" id="bestLine">Рекорд: 0</p>
+    <button id="againBtn">Играть снова</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================================================
+   Кликер «Лопни шары» — эталон L01 (главный hook курса).
+   Ваниль HTML/CSS/JS + Canvas (шары/частицы) + Web Audio (звук).
+   Один файл, двойной клик по index.html. Без CDN/сборки/ассетов.
+
+   Логика (шары, счёт, таймер) отделена от рисования:
+   игровой цикл считает состояние, render() рисует по состоянию.
+   ============================================================ */
+
+/* ---- Настройки (все числа — в одном месте, легко крутить) ---- */
+const CONFIG = {
+  roundTime: 30,            // длина раунда, сек (канон L01)
+  ballMinR: 26,             // мин. радиус шара, px
+  ballMaxR: 46,             // макс. радиус шара, px
+  ballLifetime: 2.6,        // сколько шар живёт на экране, сек (если не лопнули)
+  spawnStart: 1.05,         // стартовый интервал появления шаров, сек
+  spawnEnd: 0.42,           // интервал в конце раунда, сек (шары появляются чаще)
+  maxBalls: 7,              // максимум шаров на экране одновременно
+  particlesPerPop: 22,      // сколько частиц вылетает при лопании
+  lowTimeAt: 5              // с этой секунды таймер «тревожный» (тик + пульс)
+};
+
+/* Неоновая палитра шаров (канон L01: яркий неон + глоу) */
+const BALL_COLORS = [
+  '#ff2bd6', // маджента
+  '#00ffff', // циан
+  '#c8ff00', // лайм
+  '#ff5e00', // оранж
+  '#7a5cff', // фиолет
+  '#ff0055', // алый
+  '#00ff9d'  // мятный
+];
+
+/* ---- DOM ---- */
+const $ = id => document.getElementById(id);
+const canvas = $('game');
+const ctx = canvas.getContext('2d');
+const stage = $('stage');
+
+/* ---- Состояние игры ---- */
+let W = 0, H = 0, DPR = 1;      // размеры canvas в CSS-px и device pixel ratio
+let balls = [];                 // активные шары
+let particles = [];             // активные частицы
+let bgParticles = [];           // медленные фоновые «пылинки» для глубины
+let score = 0;
+let best = Number(localStorage.getItem('bestKlicker') || 0);
+let timeLeft = CONFIG.roundTime;
+let spawnTimer = 0;             // отсчёт до следующего появления шара
+let combo = 0;                  // серия быстрых попаданий (для спецэффекта)
+let lastPopAt = 0;              // время последнего лопания (для комбо), сек игрового времени
+let elapsed = 0;                // прошло игрового времени, сек
+let shake = 0;                  // сила тряски экрана (затухает)
+let flash = 0;                  // сила белой вспышки при комбо (затухает)
+let running = false;            // идёт ли раунд
+let lastTs = 0;                 // метка времени прошлого кадра (мс)
+let lastTickSecond = -1;        // для звука тика таймера (раз в секунду)
+
+/* ============================================================
+   1. Размер canvas и адаптив (retina-чёткость через DPR)
+   ============================================================ */
+function resize(){
+  const rect = stage.getBoundingClientRect();
+  W = rect.width; H = rect.height;
+  DPR = Math.min(window.devicePixelRatio || 1, 2);   // ограничим 2, чтоб не грузить слабые устройства
+  canvas.width = Math.round(W * DPR);
+  canvas.height = Math.round(H * DPR);
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);            // рисуем в CSS-пикселях
+}
+window.addEventListener('resize', resize);
+
+/* ============================================================
+   2. Шары
+   ============================================================ */
+function rand(min, max){ return min + Math.random() * (max - min); }
+function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+function spawnBall(allowGolden = true){
+  if (balls.length >= CONFIG.maxBalls) return;
+  const r = rand(CONFIG.ballMinR, CONFIG.ballMaxR);
+  const margin = r + 8;
+  // Редкий ЗОЛОТОЙ шар (~4% при обычном спавне) — триггер пасхалки-дождя.
+  // В залпе пасхалки (allowGolden=false) золотых не бывает — иначе бесконечный каскад.
+  const golden = allowGolden && Math.random() < 0.04;
+  balls.push({
+    x: rand(margin, W - margin),
+    y: rand(margin + 60, H - margin),   // +60 сверху — не залезать под HUD
+    r: golden ? Math.max(r, 38) : r,     // золотой чуть крупнее — заметнее
+    color: golden ? GOLD_COLOR : pick(BALL_COLORS),
+    golden,
+    born: elapsed,                       // когда появился (для pop-in и времени жизни)
+    wobble: rand(0, Math.PI * 2)         // фаза покачивания
+  });
+}
+const GOLD_COLOR = '#ffd700';           // золотой — особый цвет пасхалки (нет в BALL_COLORS)
+
+/* Текущий интервал появления: от spawnStart к spawnEnd по ходу раунда (нарастающая динамика) */
+function currentSpawnInterval(){
+  const t = Math.min(elapsed / CONFIG.roundTime, 1);   // 0..1
+  return CONFIG.spawnStart + (CONFIG.spawnEnd - CONFIG.spawnStart) * t;
+}
+
+/* Лопнуть шар с индексом i: частицы + звук + очки */
+function popBall(i){
+  const b = balls[i];
+  balls.splice(i, 1);
+
+  // комбо: если лопнули быстро после прошлого — растёт серия (только для спецэффекта, на счёт не влияет)
+  if (elapsed - lastPopAt < 0.6) combo++; else combo = 0;
+  lastPopAt = elapsed;
+
+  // очки: каждый лопнутый шар — +1 (по ТЗ)
+  score += 1;
+  bumpScore();
+
+  spawnParticles(b.x, b.y, b.color);
+  sound('pop', b.r);
+
+  // ПАСХАЛКА: лопнул редкий ЗОЛОТОЙ шар → залп из 10 шаров сразу (бонус-дождь).
+  // Новые шары — ЛЮБЫХ цветов, КРОМЕ золотого, чтобы залп не порождал новый залп (без зацикливания).
+  if (b.golden){
+    goldenBurst();
+  }
+
+  // спецэффект при хорошем комбо: тряска + вспышка
+  if (combo >= 3){
+    shake = Math.min(shake + 6, 14);
+    flash = Math.min(flash + 0.22, 0.5);
+    sound('combo');
+  }
+}
+
+/* Бонус-дождь пасхалки: 10 обычных шаров разом + яркая вспышка и звук. */
+function goldenBurst(){
+  shake = Math.min(shake + 10, 18);
+  flash = Math.min(flash + 0.4, 0.7);
+  sound('combo');
+  for (let k = 0; k < 10; k++){
+    spawnBall(false);                  // false → обычный шар (не золотой), цвет из BALL_COLORS
+  }
+}
+
+/* ============================================================
+   3. Частицы (разлёт при лопании)
+   ============================================================ */
+function spawnParticles(x, y, color){
+  for (let k = 0; k < CONFIG.particlesPerPop; k++){
+    const ang = rand(0, Math.PI * 2);
+    const spd = rand(80, 320);
+    particles.push({
+      x, y,
+      vx: Math.cos(ang) * spd,
+      vy: Math.sin(ang) * spd,
+      r: rand(2, 5),
+      color,
+      life: 1,                       // 1 → 0
+      decay: rand(1.3, 2.6)          // скорость угасания
+    });
+  }
+}
+
+/* Фоновые «пылинки» — создаём один раз, дают ощущение глубины */
+function initBgParticles(){
+  bgParticles = [];
+  for (let k = 0; k < 46; k++){
+    bgParticles.push({
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: rand(0.6, 2.2),
+      vy: rand(6, 20),               // медленно всплывают
+      a: rand(0.05, 0.35)
+    });
+  }
+}
+
+/* ============================================================
+   4. Обновление состояния (dt — секунды с прошлого кадра)
+   ============================================================ */
+function update(dt){
+  if (running){
+    // таймер
+    timeLeft -= dt;
+    elapsed += dt;
+
+    // звук тика в последние секунды — раз в целую секунду
+    const whole = Math.ceil(timeLeft);
+    if (timeLeft <= CONFIG.lowTimeAt && timeLeft > 0 && whole !== lastTickSecond){
+      lastTickSecond = whole;
+      sound('tick');
+    }
+
+    if (timeLeft <= 0){ timeLeft = 0; endGame(); }
+
+    // появление шаров по нарастающему темпу
+    spawnTimer -= dt;
+    if (spawnTimer <= 0){
+      spawnBall();
+      spawnTimer = currentSpawnInterval();
+    }
+
+    // сгорание шаров, по которым не успели кликнуть (сброс комбо косвенно — просто исчезают)
+    for (let i = balls.length - 1; i >= 0; i--){
+      if (elapsed - balls[i].born > CONFIG.ballLifetime){
+        balls.splice(i, 1);
+      }
+    }
+  }
+
+  // частицы живут всегда (чтобы долетели после конца раунда)
+  for (let i = particles.length - 1; i >= 0; i--){
+    const p = particles[i];
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.vy += 260 * dt;               // лёгкая гравитация
+    p.vx *= 0.98; p.vy *= 0.98;     // трение
+    p.life -= p.decay * dt;
+    if (p.life <= 0) particles.splice(i, 1);
+  }
+
+  // фоновые пылинки всплывают и заворачиваются снизу
+  for (const bp of bgParticles){
+    bp.y -= bp.vy * dt;
+    if (bp.y < -4){ bp.y = H + 4; bp.x = Math.random() * W; }
+  }
+
+  // затухание спецэффектов
+  if (shake > 0) shake = Math.max(0, shake - 28 * dt);
+  if (flash > 0) flash = Math.max(0, flash - 1.4 * dt);
+}
+
+/* ============================================================
+   5. Рисование (render по состоянию)
+   ============================================================ */
+function drawBackground(){
+  const g = ctx.createLinearGradient(0, 0, 0, H);
+  g.addColorStop(0, '#0d0221');
+  g.addColorStop(1, '#1b0442');
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  // фоновые пылинки
+  for (const bp of bgParticles){
+    ctx.globalAlpha = bp.a;
+    ctx.fillStyle = '#b18cff';
+    ctx.beginPath();
+    ctx.arc(bp.x, bp.y, bp.r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawBall(b){
+  // pop-in: первые 140мс шар растёт от 0 до 1
+  const age = elapsed - b.born;
+  const pop = Math.min(age / 0.14, 1);
+  const wob = 1 + Math.sin(elapsed * 3 + b.wobble) * 0.04;   // лёгкое «дыхание»
+  const r = b.r * pop * wob;
+
+  // глоу (золотой шар-пасхалка сияет заметно ярче — манит лопнуть)
+  ctx.save();
+  ctx.shadowColor = b.color;
+  ctx.shadowBlur = b.golden ? 44 : 26;
+
+  // тело — радиальный градиент (объём)
+  const grad = ctx.createRadialGradient(
+    b.x - r * 0.32, b.y - r * 0.32, r * 0.1,
+    b.x, b.y, r
+  );
+  grad.addColorStop(0, '#ffffff');
+  grad.addColorStop(0.22, b.color);
+  grad.addColorStop(1, b.color);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
+  // блик
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(b.x - r * 0.34, b.y - r * 0.34, r * 0.18, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+function drawParticles(){
+  for (const p of particles){
+    ctx.globalAlpha = Math.max(p.life, 0);
+    ctx.save();
+    ctx.shadowColor = p.color;
+    ctx.shadowBlur = 12;
+    ctx.fillStyle = p.color;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function render(){
+  // тряска экрана
+  let ox = 0, oy = 0;
+  if (shake > 0){ ox = rand(-shake, shake); oy = rand(-shake, shake); }
+  ctx.save();
+  ctx.translate(ox, oy);
+
+  drawBackground();
+  for (const b of balls) drawBall(b);
+  drawParticles();
+
+  ctx.restore();
+
+  // белая вспышка при комбо — поверх всего, без тряски
+  if (flash > 0){
+    ctx.globalAlpha = flash;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, W, H);
+    ctx.globalAlpha = 1;
+  }
+}
+
+/* ============================================================
+   6. Главный цикл
+   ============================================================ */
+function loop(ts){
+  if (!lastTs) lastTs = ts;
+  let dt = (ts - lastTs) / 1000;
+  lastTs = ts;
+  if (dt > 0.05) dt = 0.05;         // клипуем большие пропуски (вкладка была неактивна)
+
+  update(dt);
+  render();
+  updateHUD();
+  requestAnimationFrame(loop);
+}
+
+/* ============================================================
+   7. HUD
+   ============================================================ */
+function updateHUD(){
+  $('score').textContent = score;
+  const t = Math.ceil(timeLeft);
+  $('timer').textContent = t;
+  const timerEl = $('timer');
+  if (running && timeLeft <= CONFIG.lowTimeAt && timeLeft > 0) timerEl.classList.add('low');
+  else timerEl.classList.remove('low');
+}
+function bumpScore(){
+  const el = $('score');
+  el.classList.remove('bump');
+  void el.offsetWidth;               // рестарт анимации
+  el.classList.add('bump');
+}
+
+/* ============================================================
+   8. Ввод: клик/тач по шару
+   ============================================================ */
+function handlePoint(clientX, clientY){
+  if (!running) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  // проверяем шары сверху вниз (последний нарисован — сверху)
+  for (let i = balls.length - 1; i >= 0; i--){
+    const b = balls[i];
+    const dx = x - b.x, dy = y - b.y;
+    if (dx * dx + dy * dy <= b.r * b.r){
+      popBall(i);
+      return;                        // один клик — один шар
+    }
+  }
+  // промах: сбрасываем комбо
+  combo = 0;
+}
+canvas.addEventListener('mousedown', e => { ensureAudio(); handlePoint(e.clientX, e.clientY); });
+canvas.addEventListener('touchstart', e => {
+  ensureAudio();
+  e.preventDefault();
+  const t = e.changedTouches[0];
+  handlePoint(t.clientX, t.clientY);
+}, {passive:false});
+
+/* ============================================================
+   9. Звук (Web Audio, синтез — БЕЗ файлов). Максимум для L01:
+      pop / combo / tick / финал + фоновая музыка (арпеджио) + mute.
+   ============================================================ */
+let actx = null;
+let musicGain = null;               // общий регулятор громкости музыки
+let musicTimer = null;              // setInterval арпеджио
+let muted = localStorage.getItem('muteKlicker') === '1';
+
+function ensureAudio(){
+  if (actx) { if (actx.state === 'suspended') actx.resume(); return; }
+  try{
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    musicGain = actx.createGain();
+    musicGain.gain.value = muted ? 0 : 0.12;
+    musicGain.connect(actx.destination);
+  }catch(e){ actx = null; }
+}
+
+/* Базовый «бип» на осцилляторе + gain c fade-out (чтоб не щёлкало) */
+function beep(freq, dur, gain, type){
+  if (muted || !actx) return;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = type || 'sine';
+  o.frequency.value = freq;
+  g.gain.setValueAtTime(0, actx.currentTime);
+  g.gain.linearRampToValueAtTime(gain, actx.currentTime + 0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + dur);
+  o.connect(g); g.connect(actx.destination);
+  o.start();
+  o.stop(actx.currentTime + dur + 0.02);
+}
+
+function sound(kind, arg){
+  if (!actx || muted) return;
+  if (kind === 'pop'){
+    // «поп»: мелкий шар — выше тоном, крупный — ниже. Быстрый спад.
+    const r = arg || 36;
+    const base = 720 - (r - CONFIG.ballMinR) * 6;    // ~560..720 Гц
+    beep(base, 0.12, 0.22, 'triangle');
+    beep(base * 1.5, 0.08, 0.1, 'sine');             // призвук для «сочности»
+  } else if (kind === 'combo'){
+    beep(900, 0.1, 0.16, 'square');
+  } else if (kind === 'tick'){
+    beep(1200, 0.05, 0.14, 'square');                // сухой тик таймера
+  } else if (kind === 'over'){
+    // финальный аккорд: нисходящий, чуть драматичный
+    [660, 520, 400, 300].forEach((f, i) => setTimeout(() => beep(f, 0.22, 0.18, 'sawtooth'), i * 120));
+  } else if (kind === 'win'){
+    // ПОБЕДНАЯ фанфара: восходящее мажорное арпеджио + финальный аккорд (для феерверк-финала)
+    const fanfare = [523, 659, 784, 1047, 784, 1047, 1319];   // C E G C(окт) G C E(выше)
+    fanfare.forEach((f, i) => setTimeout(() => {
+      beep(f, 0.16, 0.20, 'triangle');
+      beep(f * 2, 0.10, 0.08, 'sine');
+    }, i * 110));
+    // итоговый аккорд-«салют» после арпеджио
+    setTimeout(() => { [523, 659, 784, 1047].forEach(f => beep(f, 0.5, 0.16, 'triangle')); }, fanfare.length * 110);
+  }
+}
+
+/* Залп феерверков на финале: несколько ярких вспышек-разлётов по экрану,
+   в такт победной музыке. Переиспользует particles (тот же движок разлёта). */
+function fireworksFinale(){
+  const shots = 7;                                   // сколько залпов
+  for (let s = 0; s < shots; s++){
+    setTimeout(() => {
+      if (muted === false) beep(180 + Math.random() * 120, 0.12, 0.14, 'sine');  // «пух» запуска
+      const cx = rand(W * 0.15, W * 0.85);
+      const cy = rand(H * 0.15, H * 0.55);           // повыше, как настоящий салют
+      const color = pick(BALL_COLORS);
+      // крупный залп — больше частиц, дальше разлёт, чем при лопании шара
+      for (let k = 0; k < 46; k++){
+        const ang = rand(0, Math.PI * 2);
+        const spd = rand(120, 460);
+        particles.push({
+          x: cx, y: cy,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd - 40,              // лёгкий подброс вверх
+          r: rand(2, 6),
+          color,
+          life: 1,
+          decay: rand(0.8, 1.6)                      // живут дольше обычных — красивее шлейф
+        });
+      }
+    }, s * 260);
+  }
+}
+
+/* Фоновая музыка: зацикленное бодрое арпеджио (синтез, без файла).
+   Идём по нотам минорной пентатоники — звучит «драйвово» и не приедается. */
+const MUSIC_NOTES = [261.6, 329.6, 392.0, 523.3, 392.0, 329.6];  // C E G C(окт) G E
+let musicStep = 0;
+function musicTick(){
+  if (!actx || muted) return;
+  const f = MUSIC_NOTES[musicStep % MUSIC_NOTES.length];
+  musicStep++;
+  const o = actx.createOscillator(), g = actx.createGain();
+  o.type = 'triangle';
+  o.frequency.value = f;
+  g.gain.setValueAtTime(0, actx.currentTime);
+  g.gain.linearRampToValueAtTime(0.6, actx.currentTime + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.26);
+  o.connect(g); g.connect(musicGain);               // через musicGain → влияет mute/громкость
+  o.start();
+  o.stop(actx.currentTime + 0.3);
+
+  // басовая нота каждый второй шаг — плотнее звук
+  if (musicStep % 2 === 0){
+    const bo = actx.createOscillator(), bg = actx.createGain();
+    bo.type = 'sine'; bo.frequency.value = f / 2;
+    bg.gain.setValueAtTime(0, actx.currentTime);
+    bg.gain.linearRampToValueAtTime(0.5, actx.currentTime + 0.02);
+    bg.gain.exponentialRampToValueAtTime(0.0001, actx.currentTime + 0.34);
+    bo.connect(bg); bg.connect(musicGain);
+    bo.start(); bo.stop(actx.currentTime + 0.36);
+  }
+}
+function startMusic(){
+  if (!actx) return;
+  stopMusic();
+  musicStep = 0;
+  musicTimer = setInterval(musicTick, 180);          // темп арпеджио
+}
+function stopMusic(){
+  if (musicTimer){ clearInterval(musicTimer); musicTimer = null; }
+}
+
+/* Кнопка mute */
+$('mute').addEventListener('click', () => {
+  muted = !muted;
+  localStorage.setItem('muteKlicker', muted ? '1' : '0');
+  $('mute').textContent = muted ? '🔇' : '🔊';
+  if (musicGain) musicGain.gain.value = muted ? 0 : 0.12;
+});
+$('mute').textContent = muted ? '🔇' : '🔊';
+
+/* ============================================================
+   10. Управление раундом: старт / конец
+   ============================================================ */
+function startGame(){
+  ensureAudio();
+  balls = [];
+  particles = [];
+  score = 0;
+  combo = 0;
+  timeLeft = CONFIG.roundTime;
+  elapsed = 0;
+  spawnTimer = 0;
+  lastPopAt = -10;
+  lastTickSecond = -1;
+  shake = 0; flash = 0;
+  running = true;
+
+  $('overOverlay').classList.remove('show');
+  showHint();                          // подсказка поверх уже идущей игры (тает сама)
+  updateHUD();
+  startMusic();
+
+  // Журнал запуска: по нему видно, что студент действительно играл.
+  console.log('Кликер: старт партии, время раунда ' + CONFIG.roundTime + ' сек');
+}
+
+/* Показать исчезающую подсказку заново (пересоздаём элемент, чтобы CSS-анимация проиграла снова). */
+function showHint(){
+  const old = $('hintToast');
+  if (!old) return;
+  const fresh = old.cloneNode(true);
+  old.parentNode.replaceChild(fresh, old);
+}
+
+function endGame(){
+  running = false;
+  stopMusic();
+
+  // ФЕЕРВЕРК-ФИНАЛ: яркий салют по всему экрану + победная фанфара (L01-hook «аж Ух!»)
+  sound('win');
+  fireworksFinale();
+
+  // рекорд
+  const isNewBest = score > best;
+  if (isNewBest){ best = score; localStorage.setItem('bestKlicker', best); }
+
+  // заполнить экран конца — оверлей показываем с задержкой, чтобы сначала полюбоваться салютом
+  $('finalScore').textContent = score;
+  $('bestLine').innerHTML = isNewBest
+    ? '<span class="newbest">Новый рекорд!</span>'
+    : 'Рекорд: ' + best;
+  setTimeout(() => $('overOverlay').classList.add('show'), 1400);
+
+  // Итоговая строка — то, что читает проверка «набери N очков».
+  console.log('Кликер: игра окончена. Счёт: ' + score);
+}
+
+/* ---- Кнопка «играть снова» (стартового экрана больше нет — игра идёт сразу) ---- */
+$('againBtn').addEventListener('click', startGame);
+
+/* Автостарт: игра начинается СРАЗУ при загрузке, без кнопки — сразу в динамику.
+   Звук браузер блокирует до первого жеста, поэтому AudioContext будим на первом
+   клике/касании и тогда же запускаем музыку (визуально игра уже идёт). */
+let audioWoken = false;
+function wakeAudio(){
+  if (audioWoken) return;
+  audioWoken = true;
+  ensureAudio();
+  if (actx && actx.state === 'suspended') actx.resume();
+  if (running) startMusic();          // музыка догоняет уже идущую игру
+}
+window.addEventListener('pointerdown', wakeAudio, { once:false });
+window.addEventListener('keydown', wakeAudio, { once:false });
+
+/* ---- Инициализация: сначала подготовить canvas/фон, потом СРАЗУ стартовать игру ---- */
+resize();
+initBgParticles();
+startGame();                          // ← старт без кнопки, сразу в динамику
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

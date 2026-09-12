@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кот накормлен, даже когда тебя нет дома</title>
+<style>
+  :root{
+    --bg:#17131a;
+    --surface:#211b25;
+    --ink:#f6efe5;
+    --muted:#b8aebc;
+    --accent:#f28b62;
+    --accent-dark:#d96543;
+    --line:#3a303d;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Segoe UI", system-ui, -apple-system, sans-serif;
+    line-height:1.6;
+  }
+  .container{max-width:960px;margin:0 auto;padding:0 20px;}
+
+  /* ── 1. Шапка ─────────────────────────────────────────────────────── */
+  header{
+    border-bottom:1px solid var(--line);
+    background:var(--surface);
+    position:sticky;top:0;z-index:10;
+  }
+  header .container{display:flex;align-items:center;justify-content:space-between;padding-top:16px;padding-bottom:16px;}
+  .logo{font-size:20px;font-weight:800;display:flex;align-items:center;gap:9px;}
+  .logo .mark{font-size:26px;}
+  header a.top-cta{
+    color:var(--accent-dark);font-weight:700;text-decoration:none;font-size:15px;
+  }
+
+  /* ── 2. Главный экран ─────────────────────────────────────────────── */
+  .hero{padding:76px 0 64px;text-align:center;}
+  .hero h1{font-size:clamp(30px, 5.4vw, 48px);line-height:1.2;font-weight:800;max-width:16ch;margin:0 auto;}
+  .hero p.lead{margin-top:20px;font-size:clamp(17px, 2.4vw, 20px);color:var(--muted);max-width:44ch;margin-left:auto;margin-right:auto;}
+  .hero-media{max-width:720px;margin:34px auto 0;}
+  .hero-media img{display:block;width:100%;aspect-ratio:4 / 3;object-fit:cover;border:1px solid var(--line);border-radius:24px;box-shadow:0 18px 50px rgba(0,0,0,.28);}
+  .photo-credit{margin-top:8px;color:var(--muted);font-size:12px;}
+  .photo-credit a{color:var(--muted);}
+  .btn{
+    display:inline-block;margin-top:30px;
+    background:var(--accent);color:#fff;text-decoration:none;
+    font-size:18px;font-weight:800;
+    padding:16px 38px;border-radius:999px;
+    box-shadow:0 8px 24px rgba(242,139,98,.32);
+    transition:transform .12s ease, background .2s ease;
+  }
+  .btn:hover{background:var(--accent-dark);}
+  .btn:active{transform:scale(.97);}
+  .price-line{margin-top:16px;font-size:16px;color:var(--muted);}
+  .price-line b{color:var(--ink);font-size:19px;}
+
+  /* ── 3. Три причины купить ────────────────────────────────────────── */
+  .reasons{padding:20px 0 70px;}
+  .reasons h2{text-align:center;font-size:clamp(24px, 3.6vw, 32px);margin-bottom:36px;}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:22px;}
+  .card{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:28px 24px;
+  }
+  .card .ico{font-size:38px;line-height:1;}
+  .card h3{margin-top:14px;font-size:21px;font-weight:800;}
+  .card p{margin-top:10px;color:var(--muted);font-size:16px;}
+
+  /* ── 4. Блок заказа ───────────────────────────────────────────────── */
+  .order{
+    background:var(--surface);
+    border-top:1px solid var(--line);
+    border-bottom:1px solid var(--line);
+    padding:64px 0;
+  }
+  .order h2{text-align:center;font-size:clamp(24px, 3.6vw, 32px);}
+  .order .price{text-align:center;margin-top:14px;font-size:32px;font-weight:800;color:var(--accent-dark);}
+  .order .note{text-align:center;margin-top:8px;color:var(--muted);font-size:15px;}
+  form{max-width:420px;margin:28px auto 0;display:flex;flex-direction:column;gap:12px;}
+  input{
+    padding:15px 18px;font-size:16px;font-family:inherit;
+    border:1px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);
+  }
+  input:focus{outline:none;border-color:var(--accent);}
+  form button{
+    padding:16px;border:none;border-radius:12px;
+    background:var(--accent);color:#fff;
+    font-family:inherit;font-size:18px;font-weight:800;cursor:pointer;
+    transition:background .2s ease, transform .12s ease;
+  }
+  form button:hover{background:var(--accent-dark);}
+  form button:active{transform:scale(.98);}
+  .sent{text-align:center;margin-top:14px;font-weight:700;color:var(--accent-dark);min-height:22px;}
+
+  /* ── 5. Подвал ────────────────────────────────────────────────────── */
+  footer{padding:34px 0;text-align:center;color:var(--muted);font-size:14px;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="container">
+    <div class="logo"><span class="mark">🐱</span> Мурчалка</div>
+    <a class="top-cta" href="#order">Заказать</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="container">
+    <h1>Кот накормлен, даже когда тебя нет дома</h1>
+    <p class="lead">Кормушка выдаёт порцию по расписанию, а камера показывает, как он ест.</p>
+    <figure class="hero-media">
+      <img src="cat-feeder.jpg" alt="Кот рядом с миской-кормушкой" loading="lazy">
+      <figcaption class="photo-credit">Фото: <a href="https://commons.wikimedia.org/wiki/File:Remus_and_the_slow_feeder.jpg" target="_blank" rel="noopener">Anja</a> · CC BY-SA 4.0</figcaption>
+    </figure>
+    <a class="btn" href="#order">Заказать кормушку</a>
+    <div class="price-line">Цена — <b>7 900 ₽</b></div>
+  </div>
+</section>
+
+<section class="reasons">
+  <div class="container">
+    <h2>Почему её берут</h2>
+    <div class="grid">
+
+      <div class="card">
+        <div class="ico">⏰</div>
+        <h3>Кот поест вовремя</h3>
+        <p>Расписание задаётся один раз: сколько порций в день, в какое время, какого объёма.
+           Дальше кормушка работает сама, даже если ты застрял на работе.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">📹</div>
+        <h3>Видно, что всё в порядке</h3>
+        <p>Камера показывает миску в прямом эфире. Не «кормушка отчиталась, что выдала корм»,
+           а своими глазами: подошёл, поел, ушёл.</p>
+      </div>
+
+      <div class="card">
+        <div class="ico">🔑</div>
+        <h3>Не надо просить соседей</h3>
+        <p>Уехал на выходные — и никого не надо дёргать, отдавать ключи
+           и объяснять, где стоит корм.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="order" id="order">
+  <div class="container">
+    <h2>Заказать кормушку</h2>
+    <div class="price">7 900 ₽</div>
+    <div class="note">Оставь имя и телефон — перезвоним и подтвердим заказ.</div>
+    <form id="orderForm">
+      <input type="text" id="name" placeholder="Как тебя зовут" required>
+      <input type="tel" id="phone" placeholder="Телефон" required>
+      <button type="submit">Заказать кормушку</button>
+    </form>
+    <div class="sent" id="sent"></div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">Мурчалка — автоматическая кормушка для кота</div>
+</footer>
+
+<script>
+  document.getElementById('orderForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    document.getElementById('sent').textContent = 'Заявка принята — перезвоним в течение часа.';
+    console.log('Лендинг: отправлена заявка на заказ');
+  });
+
+  console.log('Лендинг «Мурчалка»: страница открыта, блоков с причинами — '
+    + document.querySelectorAll('.reasons .card').length);
+</script>
+
+</body>
+</html>

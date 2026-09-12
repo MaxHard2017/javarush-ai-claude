@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Угадай число</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 50% 0%, #1b1046 0%, #0a0618 70%);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: #eae6ff;
+    }
+
+    .card {
+      width: 340px;
+      padding: 36px 32px 40px;
+      background: rgba(30, 20, 65, 0.55);
+      border: 1px solid rgba(140, 110, 255, 0.35);
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(120, 80, 255, 0.35), inset 0 0 20px rgba(120, 80, 255, 0.15);
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      background: linear-gradient(90deg, #7af8ff, #b48bff, #ff7ad9);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 18px rgba(140, 110, 255, 0.4);
+    }
+
+    .subtitle {
+      margin-top: 6px;
+      font-size: 13px;
+      color: #a99ed6;
+    }
+
+    .score-box {
+      margin: 26px 0 20px;
+      font-size: 15px;
+      color: #b8afdc;
+    }
+
+    .score-box span {
+      display: inline-block;
+      min-width: 44px;
+      margin-left: 6px;
+      padding: 4px 14px;
+      border-radius: 10px;
+      background: rgba(120, 80, 255, 0.18);
+      border: 1px solid rgba(140, 110, 255, 0.4);
+      font-size: 20px;
+      font-weight: 700;
+      color: #7af8ff;
+      text-shadow: 0 0 12px rgba(122, 248, 255, 0.6);
+    }
+
+    input {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 18px;
+      text-align: center;
+      color: #eae6ff;
+      background: rgba(12, 8, 30, 0.7);
+      border: 1px solid rgba(140, 110, 255, 0.4);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      border-color: #7af8ff;
+      box-shadow: 0 0 16px rgba(122, 248, 255, 0.45);
+    }
+
+    input::placeholder { color: #6f679a; }
+
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #0a0618;
+      background: linear-gradient(90deg, #7af8ff, #b48bff);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 0 20px rgba(140, 110, 255, 0.5);
+    }
+
+    button:hover { box-shadow: 0 0 28px rgba(140, 110, 255, 0.8); }
+    button:active { transform: scale(0.97); }
+
+    .message {
+      margin-top: 20px;
+      min-height: 24px;
+      font-size: 16px;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .message.win { color: #6bff9e; text-shadow: 0 0 14px rgba(107, 255, 158, 0.6); }
+    .message.miss { color: #ff8fa3; text-shadow: 0 0 14px rgba(255, 143, 163, 0.5); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Угадай число</h1>
+    <p class="subtitle">Я загадал число от 1 до 100</p>
+
+    <div class="score-box">Угадано:<span id="score">0</span></div>
+
+    <input id="guess" type="number" min="1" max="100" placeholder="Твоё число">
+    <button id="check">Проверить</button>
+
+    <p id="message" class="message"></p>
+  </div>
+
+  <script>
+    let score = 0;
+    let secret = Math.floor(Math.random() * 100) + 1;
+
+    const scoreEl = document.getElementById('score');
+    const guessEl = document.getElementById('guess');
+    const messageEl = document.getElementById('message');
+
+    document.getElementById('check').addEventListener('click', function () {
+      const guess = Number(guessEl.value);
+      if (guess === secret) {
+        messageEl.textContent = 'Угадал! 🎉 Загадал новое число.';
+        messageEl.className = 'message win';
+        score = score + 1;
+        scoreEl.textContent = score;
+        secret = Math.floor(Math.random() * 100) + 1;
+        guessEl.value = '';
+      } else if (guess < secret) {
+        messageEl.textContent = 'Больше ⬆️';
+        messageEl.className = 'message miss';
+      } else {
+        messageEl.textContent = 'Меньше ⬇️';
+        messageEl.className = 'message miss';
+      }
+    });
+  </script>
+</body>
+</html>

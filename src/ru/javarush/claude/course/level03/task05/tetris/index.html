@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Тетрис</title>
+<style>
+  :root{
+    --bg-page:#12121f;
+    --bg-panel:#1b1b2e;
+    --bg-field:#0c0c16;
+    --grid-line:#1e1e33;
+    --text-light:#e9e9f5;
+    --text-dim:#8a8ab0;
+    --accent:#5b8cff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    background:var(--bg-page);
+    font-family:"Helvetica Neue",Arial,sans-serif;
+    color:var(--text-light);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-height:100vh;padding:14px;gap:14px;
+    user-select:none;touch-action:none;
+  }
+  .title{font-size:34px;font-weight:800;letter-spacing:3px;
+    text-shadow:0 2px 14px rgba(91,140,255,.4);}
+  .game{display:flex;gap:16px;align-items:flex-start;}
+
+  /* Игровое поле */
+  .field-wrap{position:relative;background:var(--bg-field);border-radius:10px;
+    padding:6px;box-shadow:0 10px 40px rgba(0,0,0,.5), inset 0 0 0 1px #262640;}
+  canvas#field{display:block;border-radius:6px;background:var(--bg-field);}
+
+  /* Правая панель */
+  .side{display:flex;flex-direction:column;gap:12px;width:132px;}
+  .panel{background:var(--bg-panel);border-radius:10px;padding:12px;
+    box-shadow:0 4px 16px rgba(0,0,0,.35);}
+  .panel .label{font-size:11px;font-weight:700;letter-spacing:1.5px;
+    color:var(--text-dim);text-transform:uppercase;margin-bottom:6px;}
+  .panel .val{font-size:26px;font-weight:800;line-height:1;}
+  canvas#next{display:block;margin:0 auto;background:transparent;}
+  .btns{display:flex;flex-direction:column;gap:8px;}
+  button{font-family:inherit;font-weight:700;cursor:pointer;border:none;border-radius:8px;
+    background:#33334d;color:var(--text-light);padding:10px 12px;font-size:14px;
+    transition:background .15s, transform .05s;box-shadow:0 2px 6px rgba(0,0,0,.3);}
+  button:hover{background:#3f3f5e;}
+  button:active{transform:scale(.96);}
+  .hint{font-size:12px;color:var(--text-dim);line-height:1.5;text-align:center;
+    max-width:360px;}
+
+  /* Оверлей поверх поля */
+  .overlay{position:absolute;inset:6px;border-radius:6px;
+    background:rgba(12,12,22,.86);color:var(--text-light);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;
+    opacity:0;pointer-events:none;transition:opacity .2s ease;z-index:5;text-align:center;padding:20px;}
+  .overlay.show{opacity:1;pointer-events:auto;}
+  .overlay h2{font-size:30px;font-weight:800;}
+  .overlay p{font-size:15px;color:var(--text-dim);}
+  .overlay .btns{width:160px;}
+
+  @media (max-width:560px){
+    .title{font-size:26px;}
+    .game{gap:10px;}
+    .side{width:88px;}
+    .panel{padding:9px;}
+    .panel .val{font-size:20px;}
+  }
+</style>
+</head>
+<body>
+  <div class="title">ТЕТРИС</div>
+
+  <div class="game">
+    <div class="field-wrap">
+      <canvas id="field"></canvas>
+      <div class="overlay" id="overlay">
+        <h2 id="ov-title"></h2>
+        <p id="ov-sub"></p>
+        <div class="btns" id="ov-btns"></div>
+      </div>
+    </div>
+
+    <div class="side">
+      <div class="panel">
+        <div class="label">Счёт</div>
+        <div class="val" id="score">0</div>
+      </div>
+      <div class="panel">
+        <div class="label">Рекорд</div>
+        <div class="val" id="best">0</div>
+      </div>
+      <div class="panel">
+        <div class="label">Линии</div>
+        <div class="val" id="lines">0</div>
+      </div>
+      <div class="panel">
+        <div class="label">Уровень</div>
+        <div class="val" id="level">1</div>
+      </div>
+      <div class="panel">
+        <div class="label">Дальше</div>
+        <canvas id="next" width="108" height="80"></canvas>
+      </div>
+      <div class="btns">
+        <button id="pause">Пауза</button>
+        <button id="mute">🔊 Звук</button>
+        <button id="restart">Заново</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint">
+    ← → двигать · ↑ / X повернуть · ↓ ускорить · Пробел — сброс · P пауза
+  </div>
+
+<script>
+"use strict";
+/* ============================================================
+   ТЕТРИС — ванильная реализация по ТЗ-эталону (L03).
+   Игровая логика оперирует ТОЛЬКО матрицами/числами;
+   отрисовка и цвета отделены (см. §8 ТЗ).
+   Ключевые чистые функции (rotate/collide/clearLines) вынесены
+   так, чтобы их можно было протестировать в Node без DOM.
+   ============================================================ */
+
+/* ---- Параметры поля ---- */
+const COLS = 10;
+const ROWS = 20;
+const CELL = 30;          // px, размер клетки на десктопе (пересчитывается адаптивно)
+
+/* ---- Семь фигур (тетромино) как матрицы (§1) ----
+   Каждая фигура — квадратная матрица из 0/1. Число >0 = индекс цвета.
+   Матрицы заданы в «спавн»-ориентации классического тетриса. */
+const SHAPES = {
+  I: [
+    [0,0,0,0],
+    [1,1,1,1],
+    [0,0,0,0],
+    [0,0,0,0],
+  ],
+  O: [
+    [1,1],
+    [1,1],
+  ],
+  T: [
+    [0,1,0],
+    [1,1,1],
+    [0,0,0],
+  ],
+  S: [
+    [0,1,1],
+    [1,1,0],
+    [0,0,0],
+  ],
+  Z: [
+    [1,1,0],
+    [0,1,1],
+    [0,0,0],
+  ],
+  J: [
+    [1,0,0],
+    [1,1,1],
+    [0,0,0],
+  ],
+  L: [
+    [0,0,1],
+    [1,1,1],
+    [0,0,0],
+  ],
+};
+
+/* Стандартная палитра тетриса: имя фигуры → hex (§3).
+   В поле хранится строковый ключ фигуры ('I','O',...) или 0 (пусто).
+   Так «что за клетка» (логика) отделено от «каким цветом рисовать» (вид). */
+const COLORS = {
+  I:'#31c7ef',   // голубой
+  O:'#f7d308',   // жёлтый
+  T:'#ad4d9c',   // фиолетовый
+  S:'#42b642',   // зелёный
+  Z:'#ef2029',   // красный
+  J:'#5a65ff',   // синий
+  L:'#ef7921',   // оранжевый
+};
+const SHADE = {  // затемнённый край клетки для объёма
+  I:'#1a9fc4', O:'#c9ab00', T:'#853577', S:'#2c8a2c',
+  Z:'#bd1119', J:'#3742d6', L:'#c25a10',
+};
+const KEYS = Object.keys(SHAPES);
+
+/* ============================================================
+   ЧИСТАЯ ЛОГИКА (тестируется в Node) — без DOM, без глобалей поля.
+   ============================================================ */
+
+/* Поворот матрицы на 90° по часовой стрелке.
+   dir=+1 — по часовой, dir=-1 — против. Возвращает НОВУЮ матрицу. */
+function rotate(matrix, dir){
+  const n = matrix.length;
+  const res = Array.from({length:n}, ()=>Array(n).fill(0));
+  for(let r=0;r<n;r++){
+    for(let c=0;c<n;c++){
+      if(dir>0) res[c][n-1-r] = matrix[r][c];  // CW
+      else      res[n-1-c][r] = matrix[r][c];  // CCW
+    }
+  }
+  return res;
+}
+
+/* Проверка коллизии: помещается ли matrix в board на позиции (offX, offY)?
+   Возвращает true, если ЕСТЬ коллизия (выход за стены/пол или наложение).
+   board — массив ROWS строк по COLS ячеек (0 = пусто, иначе ключ фигуры). */
+function collide(board, matrix, offX, offY){
+  const n = matrix.length;
+  for(let r=0;r<n;r++){
+    for(let c=0;c<n;c++){
+      if(!matrix[r][c]) continue;        // пустая ячейка фигуры — пропуск
+      const x = offX + c;
+      const y = offY + r;
+      if(x < 0 || x >= COLS) return true;      // за левой/правой стеной
+      if(y >= ROWS) return true;               // ниже пола
+      if(y >= 0 && board[y][x]) return true;   // наложение на застывший блок
+      // y<0 (над полем) — допустимо: фигура ещё выезжает сверху
+    }
+  }
+  return false;
+}
+
+/* Вписать фигуру в board (застывание). Мутирует board:
+   каждую занятую ячейку matrix кладёт ключом фигуры key. */
+function merge(board, matrix, offX, offY, key){
+  const n = matrix.length;
+  for(let r=0;r<n;r++){
+    for(let c=0;c<n;c++){
+      if(matrix[r][c]){
+        const y = offY + r, x = offX + c;
+        if(y>=0 && y<ROWS && x>=0 && x<COLS) board[y][x] = key;
+      }
+    }
+  }
+  return board;
+}
+
+/* Убрать заполненные линии. Возвращает {board, cleared}:
+   новый board (заполненные строки удалены, сверху добавлены пустые),
+   cleared — сколько линий убрано. */
+function clearLines(board){
+  const kept = board.filter(row => row.some(cell => cell === 0));
+  const cleared = ROWS - kept.length;
+  const empty = Array.from({length:cleared}, ()=>Array(COLS).fill(0));
+  return { board: empty.concat(kept), cleared };
+}
+
+/* Пустое поле */
+function emptyBoard(){
+  return Array.from({length:ROWS}, ()=>Array(COLS).fill(0));
+}
+
+/* Смещения wall-kick при повороте (§1): пробуем позиции по порядку,
+   первая без коллизии — принимается. Классический «упрощённый» kick:
+   на месте, влево, вправо, на 2 (для I у стенки), вверх на 1. */
+const KICKS = [ [0,0], [-1,0], [1,0], [-2,0], [2,0], [0,-1] ];
+
+/* Начисление очков за очищенные линии (§1) — классическая шкала,
+   умножается на текущий уровень. */
+function lineScore(cleared, level){
+  const table = [0, 100, 300, 500, 800];  // 0,1,2,3,4 линии (Tetris = 4)
+  return table[cleared] * level;
+}
+
+/* Уровень по числу убранных линий: каждые 10 линий — +1 уровень. */
+function levelFor(totalLines){
+  return Math.floor(totalLines / 10) + 1;
+}
+
+/* Задержка гравитации (мс на шаг вниз) по уровню — растёт скорость. */
+function gravityDelay(level){
+  // Уровень 1 — живой старт (500мс), дальше быстрее; пол — 60мс.
+  const d = 500 - (level - 1) * 40;
+  return Math.max(60, d);
+}
+
+/* Экспорт для Node-тестов (в браузере module не определён — блок пропускается). */
+if (typeof module !== 'undefined' && module.exports){
+  module.exports = {
+    SHAPES, COLORS, KEYS, COLS, ROWS, KICKS,
+    rotate, collide, merge, clearLines, emptyBoard,
+    lineScore, levelFor, gravityDelay,
+  };
+}
+
+/* ============================================================
+   БРАУЗЕРНАЯ ЧАСТЬ (DOM, Canvas, ввод, звук, цикл).
+   Пропускается в Node — там нет document.
+   ============================================================ */
+if (typeof document !== 'undefined') (function(){
+
+const $ = id => document.getElementById(id);
+const fieldCanvas = $('field');
+const fctx = fieldCanvas.getContext('2d');
+const nextCanvas = $('next');
+const nctx = nextCanvas.getContext('2d');
+
+/* Адаптивный размер клетки: поле влезает по высоте/ширине экрана. */
+let cell = CELL;
+function computeCell(){
+  const maxW = Math.min(window.innerWidth - 170, 340);   // оставить место панели
+  const maxH = window.innerHeight - 130;
+  cell = Math.max(14, Math.floor(Math.min(maxW / COLS, maxH / ROWS)));
+  fieldCanvas.width = COLS * cell;
+  fieldCanvas.height = ROWS * cell;
+}
+
+/* ---- Состояние игры ---- */
+let board;               // ROWS×COLS, 0 или ключ фигуры
+let cur;                 // текущая фигура: {key, matrix, x, y}
+let nextKey;             // ключ следующей фигуры
+let bag = [];            // «мешок» из 7 фигур (честная выдача, §1)
+let score, lines, level;
+let best = Number(localStorage.getItem('bestTetris') || 0);
+let paused = false, over = false, started = false;
+
+/* Тайминги гравитации */
+let dropTimer = 0;       // накопитель времени падения (мс)
+let lastTime = 0;
+let softDrop = false;    // зажата ли ↓
+let lockTimer = 0;       // мс на «залипание» перед фиксацией
+const LOCK_DELAY = 400;
+
+/* Анимация очистки линий: вспышка перед схлопыванием (§4) */
+let flash = null;        // {rows:[...], t:mв мс осталось} или null
+const FLASH_TIME = 140;
+
+/* ---- «Мешок из семи» — честная выдача фигур (§1) ---- */
+function refillBag(){
+  bag = KEYS.slice();
+  for(let i=bag.length-1;i>0;i--){          // перемешать
+    const j = Math.floor(Math.random()*(i+1));
+    [bag[i],bag[j]] = [bag[j],bag[i]];
+  }
+}
+function nextFromBag(){
+  if(!bag.length) refillBag();
+  return bag.pop();
+}
+
+/* Создать фигуру по ключу в спавн-позиции сверху по центру. */
+function spawn(key){
+  const matrix = SHAPES[key].map(row => row.slice());   // копия
+  const x = Math.floor((COLS - matrix.length) / 2);
+  const y = -topMargin(matrix);   // приподнять так, чтобы первый занятый ряд был у верха
+  return { key, matrix, x, y };
+}
+/* Сколько пустых верхних рядов у матрицы — чтобы фигура появлялась впритык к верху. */
+function topMargin(matrix){
+  for(let r=0;r<matrix.length;r++){
+    if(matrix[r].some(v=>v)) return r;
+  }
+  return 0;
+}
+
+/* Взять следующую фигуру; если она сразу в коллизии — game over (§1). */
+function newPiece(){
+  cur = spawn(nextKey);
+  nextKey = nextFromBag();
+  drawNext();
+  if(collide(board, cur.matrix, cur.x, cur.y)){
+    gameOver();
+  }
+}
+
+/* ---- Действия игрока ---- */
+function tryMove(dx){
+  if(!collide(board, cur.matrix, cur.x+dx, cur.y)){
+    cur.x += dx;
+    resetLock();
+    sound('move');
+    return true;
+  }
+  return false;
+}
+function tryRotate(dir){
+  const rotated = rotate(cur.matrix, dir);
+  for(const [kx,ky] of KICKS){
+    if(!collide(board, rotated, cur.x+kx, cur.y+ky)){
+      cur.matrix = rotated;
+      cur.x += kx; cur.y += ky;
+      resetLock();
+      sound('rotate');
+      return true;
+    }
+  }
+  return false;   // ни один kick не помог — поворот отменён
+}
+/* Шаг вниз. Возвращает true, если сдвинулась; false — упёрлась. */
+function stepDown(){
+  if(!collide(board, cur.matrix, cur.x, cur.y+1)){
+    cur.y++;
+    return true;
+  }
+  return false;
+}
+function hardDrop(){
+  let dist = 0;
+  while(!collide(board, cur.matrix, cur.x, cur.y+1)){ cur.y++; dist++; }
+  score += dist * 2;                 // бонус за hard drop (§1)
+  lockPiece();
+}
+/* «Залипание» текущей фигуры в поле + линии + новая фигура. */
+function lockPiece(){
+  merge(board, cur.matrix, cur.x, cur.y, cur.key);
+  sound('lock');
+  const full = fullRows();
+  if(full.length){
+    // запустить вспышку, схлопывание — после неё
+    flash = { rows:full, t:FLASH_TIME };
+  } else {
+    newPiece();
+  }
+  lockTimer = 0;
+}
+function resetLock(){ lockTimer = 0; }
+
+/* Индексы полностью заполненных рядов (для вспышки). */
+function fullRows(){
+  const res=[];
+  for(let r=0;r<ROWS;r++){ if(board[r].every(c=>c!==0)) res.push(r); }
+  return res;
+}
+
+/* После вспышки: удалить линии, начислить очки, поднять уровень. */
+function commitClear(){
+  const before = board.map(row=>row.slice());
+  const { board:nb, cleared } = clearLines(before);
+  board = nb;
+  if(cleared>0){
+    score += lineScore(cleared, level);
+    lines += cleared;
+    const nl = levelFor(lines);
+    if(nl > level) level = nl;
+    sound(cleared>=4 ? 'tetris' : 'clear');
+  }
+  flash = null;
+  updateHUD();
+  newPiece();
+}
+
+/* ---- Game over ---- */
+function gameOver(){
+  over = true;
+  sound('over');
+  if(score > best){ best = score; localStorage.setItem('bestTetris', best); }
+  updateHUD();
+  showOverlay('over');
+}
+
+/* ---- Рендер поля ---- */
+function drawCell(ctx, x, y, key, size, ghost){
+  const px = x*size, py = y*size;
+  if(ghost){
+    ctx.strokeStyle = COLORS[key];
+    ctx.globalAlpha = 0.35;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(px+2, py+2, size-4, size-4);
+    ctx.globalAlpha = 1;
+    return;
+  }
+  ctx.fillStyle = COLORS[key];
+  ctx.fillRect(px, py, size, size);
+  // объёмная кромка
+  ctx.fillStyle = 'rgba(255,255,255,.22)';
+  ctx.fillRect(px, py, size, size*0.16);          // верхний блик
+  ctx.fillStyle = SHADE[key];
+  ctx.fillRect(px, py+size*0.84, size, size*0.16); // нижняя тень
+  ctx.strokeStyle = 'rgba(0,0,0,.35)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(px+0.5, py+0.5, size-1, size-1);
+}
+
+function drawGrid(){
+  fctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid-line').trim();
+  fctx.lineWidth = 1;
+  for(let x=1;x<COLS;x++){
+    fctx.beginPath(); fctx.moveTo(x*cell+0.5,0); fctx.lineTo(x*cell+0.5,ROWS*cell); fctx.stroke();
+  }
+  for(let y=1;y<ROWS;y++){
+    fctx.beginPath(); fctx.moveTo(0,y*cell+0.5); fctx.lineTo(COLS*cell,y*cell+0.5); fctx.stroke();
+  }
+}
+
+/* «Призрак» — где фигура приземлится (§ визуал). */
+function ghostY(){
+  let gy = cur.y;
+  while(!collide(board, cur.matrix, cur.x, gy+1)) gy++;
+  return gy;
+}
+
+function render(){
+  fctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--bg-field').trim();
+  fctx.fillRect(0,0,fieldCanvas.width,fieldCanvas.height);
+  drawGrid();
+
+  // застывшие блоки
+  for(let r=0;r<ROWS;r++){
+    for(let c=0;c<COLS;c++){
+      if(board[r][c]) drawCell(fctx, c, r, board[r][c], cell, false);
+    }
+  }
+
+  // вспышка очищаемых линий (§4)
+  if(flash){
+    const alpha = flash.t / FLASH_TIME;  // затухает
+    fctx.fillStyle = `rgba(255,255,255,${0.15 + 0.7*alpha})`;
+    for(const r of flash.rows) fctx.fillRect(0, r*cell, COLS*cell, cell);
+  }
+
+  if(cur && !over){
+    // призрак
+    const gy = ghostY();
+    if(gy !== cur.y){
+      for(let r=0;r<cur.matrix.length;r++)
+        for(let c=0;c<cur.matrix[r].length;c++)
+          if(cur.matrix[r][c]) drawCell(fctx, cur.x+c, gy+r, cur.key, cell, true);
+    }
+    // сама фигура
+    for(let r=0;r<cur.matrix.length;r++)
+      for(let c=0;c<cur.matrix[r].length;c++)
+        if(cur.matrix[r][c]){
+          const y = cur.y+r;
+          if(y>=0) drawCell(fctx, cur.x+c, y, cur.key, cell, false);
+        }
+  }
+}
+
+/* Превью следующей фигуры (§ визуал). */
+function drawNext(){
+  nctx.clearRect(0,0,nextCanvas.width,nextCanvas.height);
+  const m = SHAPES[nextKey];
+  const s = 20;
+  // обрезаем пустые ряды/колонки для центрирования
+  let minR=99,maxR=-1,minC=99,maxC=-1;
+  for(let r=0;r<m.length;r++)for(let c=0;c<m[r].length;c++) if(m[r][c]){
+    minR=Math.min(minR,r);maxR=Math.max(maxR,r);minC=Math.min(minC,c);maxC=Math.max(maxC,c);
+  }
+  const w=(maxC-minC+1)*s, h=(maxR-minR+1)*s;
+  const ox=(nextCanvas.width-w)/2, oy=(nextCanvas.height-h)/2;
+  for(let r=minR;r<=maxR;r++)for(let c=minC;c<=maxC;c++) if(m[r][c]){
+    const px=ox+(c-minC)*s, py=oy+(r-minR)*s;
+    nctx.fillStyle=COLORS[nextKey];
+    nctx.fillRect(px,py,s,s);
+    nctx.fillStyle='rgba(255,255,255,.2)'; nctx.fillRect(px,py,s,s*0.16);
+    nctx.fillStyle=SHADE[nextKey]; nctx.fillRect(px,py+s*0.84,s,s*0.16);
+    nctx.strokeStyle='rgba(0,0,0,.35)'; nctx.strokeRect(px+0.5,py+0.5,s-1,s-1);
+  }
+}
+
+/* ---- HUD ---- */
+function updateHUD(){
+  $('score').textContent = score;
+  $('lines').textContent = lines;
+  $('level').textContent = level;
+  if(score>best){ best=score; localStorage.setItem('bestTetris',best); }
+  $('best').textContent = best;
+}
+
+/* ---- Оверлей (пауза / game over) ---- */
+function showOverlay(kind){
+  const ov=$('overlay'), t=$('ov-title'), s=$('ov-sub'), b=$('ov-btns');
+  ov.className='overlay show';
+  b.innerHTML='';
+  if(kind==='over'){
+    t.textContent='Игра окончена';
+    s.textContent='Счёт: '+score+'  ·  Линий: '+lines;
+    addBtn(b,'Заново',startGame);
+  } else if(kind==='pause'){
+    t.textContent='Пауза';
+    s.textContent='Нажми «Продолжить» или P';
+    addBtn(b,'Продолжить',togglePause);
+  }
+}
+function hideOverlay(){ $('overlay').className='overlay'; }
+function addBtn(parent,label,fn){
+  const btn=document.createElement('button'); btn.textContent=label; btn.onclick=fn; parent.appendChild(btn);
+}
+
+/* ---- Звук (Web Audio, синтез, §5) ---- */
+let actx=null, muted = localStorage.getItem('muteTetris')==='1';
+function ensureAudio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+function beep(freq,dur,gain,type){
+  if(muted||!actx) return;
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type=type||'triangle'; o.frequency.value=freq;
+  g.gain.setValueAtTime(0,actx.currentTime);
+  g.gain.linearRampToValueAtTime(gain,actx.currentTime+0.008);
+  g.gain.exponentialRampToValueAtTime(0.0001,actx.currentTime+dur);
+  o.connect(g); g.connect(actx.destination);
+  o.start(); o.stop(actx.currentTime+dur+0.02);
+}
+function sound(kind){
+  ensureAudio();
+  if(muted||!actx) return;
+  if(kind==='move')       beep(160,0.04,0.14,'square');
+  else if(kind==='rotate')beep(330,0.06,0.18,'triangle');
+  else if(kind==='lock')  beep(120,0.08,0.22,'sawtooth');
+  else if(kind==='clear'){ [523,659,784].forEach((f,i)=>setTimeout(()=>beep(f,0.10,0.30,'sine'),i*55)); }
+  else if(kind==='tetris'){ [523,659,784,1047,1319].forEach((f,i)=>setTimeout(()=>beep(f,0.13,0.35,'sine'),i*60)); }
+  else if(kind==='over'){ [440,349,262,196].forEach((f,i)=>setTimeout(()=>beep(f,0.18,0.26,'sawtooth'),i*130)); }
+}
+
+/* ---- Игровой цикл (rAF + аккумулятор времени, §7) ---- */
+function loop(time){
+  requestAnimationFrame(loop);
+  if(!started) return;
+  const dt = time - lastTime;
+  lastTime = time;
+  if(paused || over){ render(); return; }
+
+  // анимация вспышки линий
+  if(flash){
+    flash.t -= dt;
+    if(flash.t <= 0) commitClear();
+    render();
+    return;                       // во время вспышки фигура не падает
+  }
+
+  // Фигура на опоре? (не может опуститься на 1 вниз)
+  const grounded = collide(board, cur.matrix, cur.x, cur.y+1);
+
+  if(grounded){
+    // Копим lock delay по реальному dt; истёк — фиксируем и выходим из кадра
+    // (lockPiece меняет cur / запускает вспышку — второй lock за кадр недопустим).
+    lockTimer += dt;
+    dropTimer = 0;
+    if(lockTimer >= LOCK_DELAY){ lockPiece(); render(); return; }
+  } else {
+    // Фигура в воздухе — обычная гравитация по таймеру
+    lockTimer = 0;
+    dropTimer += dt;
+    const delay = softDrop ? Math.min(50, gravityDelay(level)) : gravityDelay(level);
+    if(dropTimer >= delay){
+      dropTimer = 0;
+      stepDown();
+      if(softDrop) score += 1;    // очко за каждую клетку soft drop
+    }
+  }
+
+  updateHUD();   // счёт мог измениться (soft/hard drop) — держим HUD актуальным
+  render();
+}
+
+/* ---- Ввод (клавиатура, §2) ---- */
+window.addEventListener('keydown', e=>{
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' '].includes(e.key)) e.preventDefault();
+  ensureAudio();
+  if(over) return;
+  if(e.key==='p' || e.key==='P'){ togglePause(); return; }
+  if(paused) return;
+  if(!started) return;
+
+  switch(e.key){
+    case 'ArrowLeft':  tryMove(-1); break;
+    case 'ArrowRight': tryMove(1); break;
+    case 'ArrowUp':
+    case 'x': case 'X': tryRotate(1); break;
+    case 'z': case 'Z': tryRotate(-1); break;   // поворот против часовой
+    case 'ArrowDown':  softDrop = true; break;
+    case ' ':          hardDrop(); break;
+  }
+  render();
+});
+window.addEventListener('keyup', e=>{
+  if(e.key==='ArrowDown') softDrop = false;
+});
+
+/* Свайпы/тач (§2): влево/вправо — движение, вверх — поворот,
+   вниз — hard drop, тап — поворот. Порог 24px. */
+let sx=0, sy=0, moved=false;
+fieldCanvas.addEventListener('touchstart', e=>{
+  ensureAudio();
+  const t=e.touches[0]; sx=t.clientX; sy=t.clientY; moved=false;
+},{passive:true});
+fieldCanvas.addEventListener('touchmove', e=>{
+  if(over||paused||!started) return;
+  const t=e.touches[0];
+  const dx=t.clientX-sx, dy=t.clientY-sy;
+  const TH=24;
+  if(Math.abs(dx)>Math.abs(dy) && Math.abs(dx)>=TH){
+    tryMove(dx>0?1:-1); sx=t.clientX; sy=t.clientY; moved=true; render();
+  } else if(dy>=TH){
+    softDrop=true; sy=t.clientY; moved=true;
+  }
+},{passive:true});
+fieldCanvas.addEventListener('touchend', e=>{
+  softDrop=false;
+  if(over||paused||!started){ return; }
+  if(!moved){ tryRotate(1); render(); }      // тап без сдвига = поворот
+});
+
+/* ---- Кнопки ---- */
+function togglePause(){
+  if(over || !started) return;
+  paused = !paused;
+  if(paused) showOverlay('pause'); else { hideOverlay(); lastTime=performance.now(); }
+}
+$('pause').onclick = ()=>{ ensureAudio(); togglePause(); };
+$('restart').onclick = ()=>{ ensureAudio(); startGame(); };
+$('mute').onclick = ()=>{
+  muted=!muted; localStorage.setItem('muteTetris',muted?'1':'0');
+  $('mute').textContent = muted ? '🔇 Звук' : '🔊 Звук';
+};
+$('mute').textContent = muted ? '🔇 Звук' : '🔊 Звук';
+
+/* ---- Старт партии ---- */
+function startGame(){
+  computeCell();
+  board = emptyBoard();
+  score = 0; lines = 0; level = 1;
+  bag = []; refillBag();
+  nextKey = nextFromBag();
+  paused = false; over = false; started = true;
+  flash = null; softDrop = false;
+  dropTimer = 0; lockTimer = 0; lastTime = performance.now();
+  hideOverlay();
+  updateHUD();
+  newPiece();
+}
+
+window.addEventListener('resize', ()=>{ computeCell(); render(); });
+
+startGame();
+requestAnimationFrame(loop);
+
+})();
+</script>
+</body>
+</html>

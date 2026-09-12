@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2048</title>
+  <style>
+    :root {
+      --page: #faf8ef;
+      --text: #776e65;
+      --empty: #cdc1b4;
+      --board: #bbada0;
+      --gap: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      min-height: 100%;
+    }
+
+    body {
+      margin: 0;
+      background: var(--page);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button {
+      min-height: 44px;
+      border: 0;
+      border-radius: 4px;
+      padding: 0 16px;
+      background: #8f7a66;
+      color: #f9f6f2;
+      cursor: pointer;
+      font: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      touch-action: manipulation;
+    }
+
+    button:hover {
+      background: #776452;
+    }
+
+    button:focus-visible {
+      outline: 3px solid #5f9ea0;
+      outline-offset: 3px;
+    }
+
+    .game {
+      width: min(480px, 100%);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 24px 16px 32px;
+    }
+
+    .game__header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .game__title {
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(48px, 14vw, 74px);
+      line-height: .85;
+      letter-spacing: -4px;
+    }
+
+    .score {
+      min-width: 92px;
+      padding: 8px 14px 10px;
+      border-radius: 4px;
+      background: #bbada0;
+      color: #f9f6f2;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .score__label {
+      display: block;
+      color: #eee4da;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .6px;
+    }
+
+    .score__value {
+      display: block;
+      margin-top: 2px;
+      font-size: 26px;
+      line-height: 1;
+    }
+
+    .game__intro {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .game__intro p {
+      margin: 0;
+    }
+
+    .board-wrap {
+      position: relative;
+      width: min(448px, calc(100vw - 32px));
+      margin: 0 auto;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(4, 1fr);
+      gap: var(--gap);
+      width: 100%;
+      aspect-ratio: 1;
+      padding: var(--gap);
+      border-radius: 6px;
+      background: var(--board);
+      touch-action: none;
+      user-select: none;
+    }
+
+    .cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 0;
+      min-height: 0;
+      border-radius: 4px;
+      background: var(--empty);
+    }
+
+    .tile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      border-radius: 4px;
+      color: #f9f6f2;
+      font-size: 55px;
+      font-weight: 700;
+      line-height: 1;
+    }
+
+    .tile--three-digits {
+      font-size: 45px;
+    }
+
+    .tile--four-digits,
+    .tile--many-digits {
+      font-size: 35px;
+    }
+
+    .tile[data-value="2"] {
+      background: #eee4da;
+      color: #776e65;
+    }
+
+    .tile[data-value="4"] {
+      background: #ede0c8;
+      color: #776e65;
+    }
+
+    .tile[data-value="8"] {
+      background: #f2b179;
+    }
+
+    .tile[data-value="16"] {
+      background: #f59563;
+    }
+
+    .tile[data-value="32"] {
+      background: #f67c5f;
+    }
+
+    .tile[data-value="64"] {
+      background: #f65e3b;
+    }
+
+    .tile--high {
+      background: #edcf72;
+    }
+
+    .tile--settle {
+      animation: tile-settle 120ms ease-out;
+    }
+
+    @keyframes tile-settle {
+      0% {
+        opacity: .45;
+        transform: scale(.82);
+      }
+      65% {
+        opacity: 1;
+        transform: scale(1.06);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .game__footer {
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      border-radius: 6px;
+      background: rgba(250, 248, 239, .82);
+      text-align: center;
+    }
+
+    .overlay[hidden] {
+      display: none;
+    }
+
+    .overlay__content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .overlay__message {
+      margin: 0;
+      color: var(--text);
+      font-size: clamp(22px, 6vw, 30px);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .overlay__score {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 380px) {
+      .game {
+        padding-top: 18px;
+      }
+
+      .game__header {
+        margin-bottom: 14px;
+      }
+
+      .game__intro {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .game__intro button {
+        align-self: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="game" aria-label="Игра 2048">
+    <header class="game__header">
+      <h1 class="game__title">2048</h1>
+      <div class="score" aria-live="polite">
+        <span class="score__label">Счёт</span>
+        <span class="score__value" id="score">0</span>
+      </div>
+    </header>
+
+    <div class="game__intro">
+      <p>Соедини одинаковые плитки и собери 2048.</p>
+      <button id="new-game-top" type="button">Новая игра</button>
+    </div>
+
+    <section class="board-wrap" aria-label="Игровое поле">
+      <div class="board" id="board" role="grid" aria-label="Поле 4 на 4"></div>
+      <div class="overlay" id="overlay" hidden>
+        <div class="overlay__content">
+          <p class="overlay__message" id="overlay-message"></p>
+          <p class="overlay__score" id="overlay-score"></p>
+          <button id="new-game-overlay" type="button">Новая игра</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="game__footer">
+      <button id="new-game-bottom" type="button">Новая игра</button>
+    </footer>
+  </main>
+
+  <script>
+    'use strict';
+
+    const SIZE = 4;
+    const CELL_COUNT = SIZE * SIZE;
+    const ANIMATION_MS = 120;
+    const SWIPE_THRESHOLD = 30;
+    const DIRECTIONS = new Set(['up', 'down', 'left', 'right']);
+
+    const state = {
+      board: createEmptyBoard(),
+      score: 0,
+      status: 'playing',
+      isAnimating: false,
+      maxTile: 0,
+      animationToken: 0
+    };
+
+    const boardElement = document.getElementById('board');
+    const scoreElement = document.getElementById('score');
+    const overlayElement = document.getElementById('overlay');
+    const overlayMessageElement = document.getElementById('overlay-message');
+    const overlayScoreElement = document.getElementById('overlay-score');
+    const newGameButtons = [
+      document.getElementById('new-game-top'),
+      document.getElementById('new-game-bottom'),
+      document.getElementById('new-game-overlay')
+    ];
+
+    function createEmptyBoard() {
+      return Array(CELL_COUNT).fill(0);
+    }
+
+    function getEmptyIndices(board) {
+      return board.reduce((indices, value, index) => {
+        if (value === 0) indices.push(index);
+        return indices;
+      }, []);
+    }
+
+    function spawnTile(board) {
+      const emptyIndices = getEmptyIndices(board);
+      if (emptyIndices.length === 0) return false;
+
+      const cellIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+      board[cellIndex] = Math.random() < 0.9 ? 2 : 4;
+      return true;
+    }
+
+    function processLine(line) {
+      const compact = line.filter(value => value !== 0);
+      const result = [];
+      let score = 0;
+
+      for (let index = 0; index < compact.length; index += 1) {
+        if (compact[index] === compact[index + 1]) {
+          const merged = compact[index] * 2;
+          result.push(merged);
+          score += merged;
+          index += 1;
+        } else {
+          result.push(compact[index]);
+        }
+      }
+
+      while (result.length < SIZE) result.push(0);
+      return {
+        line: result,
+        score,
+        changed: result.some((value, index) => value !== line[index])
+      };
+    }
+
+    function getLineIndices(lineIndex, direction) {
+      if (direction === 'left') {
+        const start = lineIndex * SIZE;
+        return [start, start + 1, start + 2, start + 3];
+      }
+      if (direction === 'right') {
+        const start = lineIndex * SIZE;
+        return [start + 3, start + 2, start + 1, start];
+      }
+      if (direction === 'up') {
+        return [lineIndex, lineIndex + SIZE, lineIndex + SIZE * 2, lineIndex + SIZE * 3];
+      }
+      return [
+        lineIndex + SIZE * 3,
+        lineIndex + SIZE * 2,
+        lineIndex + SIZE,
+        lineIndex
+      ];
+    }
+
+    function moveBoard(board, direction) {
+      if (!DIRECTIONS.has(direction)) {
+        return { board: board.slice(), scoreGain: 0, changed: false };
+      }
+
+      const next = createEmptyBoard();
+      let scoreGain = 0;
+
+      for (let lineIndex = 0; lineIndex < SIZE; lineIndex += 1) {
+        const indices = getLineIndices(lineIndex, direction);
+        const source = indices.map(index => board[index]);
+        const processed = processLine(source);
+        processed.line.forEach((value, position) => {
+          next[indices[position]] = value;
+        });
+        scoreGain += processed.score;
+      }
+
+      return {
+        board: next,
+        scoreGain,
+        changed: next.some((value, index) => value !== board[index])
+      };
+    }
+
+    function hasWon(board) {
+      return board.includes(2048);
+    }
+
+    function hasLost(board) {
+      if (board.some(value => value === 0)) return false;
+
+      for (let row = 0; row < SIZE; row += 1) {
+        for (let column = 0; column < SIZE; column += 1) {
+          const index = row * SIZE + column;
+          if (column + 1 < SIZE && board[index] === board[index + 1]) return false;
+          if (row + 1 < SIZE && board[index] === board[index + SIZE]) return false;
+        }
+      }
+      return true;
+    }
+
+    function getMaxTile(board) {
+      return board.reduce((maximum, value) => Math.max(maximum, value), 0);
+    }
+
+    function logNewMaximum() {
+      const currentMaximum = getMaxTile(state.board);
+      if (currentMaximum > state.maxTile) {
+        state.maxTile = currentMaximum;
+        console.log(`[2048] Новая максимальная плитка: ${currentMaximum}`);
+      }
+    }
+
+    function finishGame(status) {
+      state.status = status;
+      if (status === 'won') {
+        console.log('[2048] Партия завершена: победа');
+      } else {
+        console.log('[2048] Партия завершена: поражение');
+      }
+    }
+
+    function startNewGame() {
+      state.animationToken += 1;
+      state.board = createEmptyBoard();
+      state.score = 0;
+      state.status = 'playing';
+      state.isAnimating = false;
+      spawnTile(state.board);
+      spawnTile(state.board);
+      state.maxTile = getMaxTile(state.board);
+      render();
+      console.log('[2048] Партия началась');
+    }
+
+    function handleMove(direction) {
+      if (!DIRECTIONS.has(direction) || state.status !== 'playing' || state.isAnimating) return;
+
+      const result = moveBoard(state.board, direction);
+      if (!result.changed) return;
+
+      state.board = result.board;
+      state.score += result.scoreGain;
+      spawnTile(state.board);
+      state.isAnimating = true;
+      logNewMaximum();
+
+      if (hasWon(state.board)) {
+        finishGame('won');
+      } else if (hasLost(state.board)) {
+        finishGame('lost');
+      }
+
+      render();
+      const animationToken = state.animationToken;
+      window.setTimeout(() => {
+        if (animationToken !== state.animationToken) return;
+        state.isAnimating = false;
+        render();
+      }, ANIMATION_MS);
+    }
+
+    function createTileElement(value) {
+      const tile = document.createElement('div');
+      const digits = String(value).length;
+      tile.className = 'tile';
+      tile.dataset.value = String(value);
+      tile.textContent = String(value);
+      tile.setAttribute('role', 'gridcell');
+      tile.setAttribute('aria-label', `Плитка ${value}`);
+
+      if (digits === 3) tile.classList.add('tile--three-digits');
+      if (digits === 4) tile.classList.add('tile--four-digits');
+      if (digits > 4) tile.classList.add('tile--many-digits');
+      if (value >= 128) tile.classList.add('tile--high');
+      if (state.isAnimating) tile.classList.add('tile--settle');
+      return tile;
+    }
+
+    function render() {
+      scoreElement.textContent = String(state.score);
+
+      state.board.forEach((value, index) => {
+        const cell = boardElement.children[index];
+        cell.replaceChildren();
+        if (value !== 0) cell.appendChild(createTileElement(value));
+        cell.setAttribute('aria-label', value === 0 ? 'Пустая ячейка' : `Плитка ${value}`);
+      });
+
+      const isFinished = state.status === 'won' || state.status === 'lost';
+      overlayElement.hidden = !isFinished;
+      if (state.status === 'won') {
+        overlayMessageElement.textContent = 'Победа! Плитка 2048 собрана.';
+      } else if (state.status === 'lost') {
+        overlayMessageElement.textContent = 'Ходов нет.';
+      } else {
+        overlayMessageElement.textContent = '';
+      }
+      overlayScoreElement.textContent = isFinished ? `Итоговый счёт: ${state.score}` : '';
+    }
+
+    function createBoardCells() {
+      const fragment = document.createDocumentFragment();
+      for (let index = 0; index < CELL_COUNT; index += 1) {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        cell.setAttribute('role', 'gridcell');
+        fragment.appendChild(cell);
+      }
+      boardElement.appendChild(fragment);
+    }
+
+    const keyToDirection = {
+      ArrowUp: 'up',
+      ArrowDown: 'down',
+      ArrowLeft: 'left',
+      ArrowRight: 'right',
+      w: 'up',
+      s: 'down',
+      a: 'left',
+      d: 'right'
+    };
+
+    document.addEventListener('keydown', event => {
+      const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+      const direction = keyToDirection[key];
+      if (!direction) return;
+      if (event.key.startsWith('Arrow')) event.preventDefault();
+      handleMove(direction);
+    });
+
+    let touchStart = null;
+    let touchTracking = false;
+    let touchIdentifier = null;
+
+    function resetTouch() {
+      touchStart = null;
+      touchTracking = false;
+      touchIdentifier = null;
+    }
+
+    boardElement.addEventListener('touchstart', event => {
+      if (event.touches.length !== 1) {
+        resetTouch();
+        return;
+      }
+
+      const touch = event.touches[0];
+      touchStart = { x: touch.clientX, y: touch.clientY };
+      touchIdentifier = touch.identifier;
+      touchTracking = true;
+    }, { passive: true });
+
+    boardElement.addEventListener('touchmove', event => {
+      if (event.touches.length !== 1) resetTouch();
+    }, { passive: true });
+
+    boardElement.addEventListener('touchend', event => {
+      if (!touchTracking || !touchStart || event.touches.length !== 0) {
+        resetTouch();
+        return;
+      }
+
+      const touch = Array.from(event.changedTouches)
+        .find(item => item.identifier === touchIdentifier);
+      if (!touch) {
+        resetTouch();
+        return;
+      }
+
+      const dx = touch.clientX - touchStart.x;
+      const dy = touch.clientY - touchStart.y;
+      resetTouch();
+
+      const absDx = Math.abs(dx);
+      const absDy = Math.abs(dy);
+      if (Math.max(absDx, absDy) < SWIPE_THRESHOLD || absDx === absDy) return;
+
+      handleMove(absDx > absDy
+        ? (dx > 0 ? 'right' : 'left')
+        : (dy > 0 ? 'down' : 'up'));
+    }, { passive: true });
+
+    boardElement.addEventListener('touchcancel', resetTouch, { passive: true });
+
+    newGameButtons.forEach(button => button.addEventListener('click', startNewGame));
+
+    createBoardCells();
+    startNewGame();
+
+    window.game2048 = {
+      state,
+      createEmptyBoard,
+      getEmptyIndices,
+      spawnTile,
+      processLine,
+      getLineIndices,
+      moveBoard,
+      hasWon,
+      hasLost,
+      startNewGame,
+      handleMove,
+      render
+    };
+  </script>
+</body>
+</html>
