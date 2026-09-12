@@ -1,0 +1,2 @@
+{"ts":"2026-09-12T12:28:39.095Z","event":"SessionStart","actor":"student","action":"session_start","source":"startup","session_id":"a38d87f9-81eb-4ac9-8c81-8664e6f136b1"}
+{"ts":"2026-09-12T12:28:39.912Z","event":"SessionEnd","actor":"student","action":"session_end","reason":"other","session_id":"a38d87f9-81eb-4ac9-8c81-8664e6f136b1"}

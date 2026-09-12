@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Магазин чудес</title>
+  <style>
+    /* Сырой черновик: системный шрифт, серый фон, слипшиеся отступы, без оформления. */
+    body {
+      font-family: Times, serif;
+      background: #9a9a9a;
+      color: #222;
+      margin: 4px;
+    }
+    header { background: #7d7d7d; padding: 4px; }
+    header h1 { margin: 0; font-size: 20px; }
+    nav a { margin-right: 8px; color: #333; }
+    .hero { padding: 4px; }
+    .hero h2 { font-size: 18px; margin: 2px 0; }
+    .hero p { margin: 2px 0; }
+    .products { }
+    .product {
+      background: #b0b0b0;
+      border: 1px solid #666;
+      padding: 3px;
+      margin: 2px 0;
+    }
+    .product h3 { font-size: 15px; margin: 1px 0; }
+    .product p { margin: 1px 0; font-size: 13px; }
+    button { background: #666; color: #fff; border: 0; padding: 4px 8px; }
+    footer { font-size: 12px; margin-top: 4px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Магазин чудес</h1>
+    <nav><a href="#catalog">Каталог</a><a href="#order">Заказать</a></nav>
+  </header>
+
+  <section class="hero">
+    <h2>Всё для дома и хобби в одном месте</h2>
+    <p>Товары для тех, кто любит уют и мастерит своими руками. Доставка по стране.</p>
+    <button>Смотреть каталог</button>
+  </section>
+
+  <section class="products" id="catalog">
+    <div class="product">
+      <h3>Набор для рукоделия</h3>
+      <p>Всё, чтобы начать: нитки, крючки, схемы. 890 ₿</p>
+    </div>
+    <div class="product">
+      <h3>Настольная лампа «Тепло»</h3>
+      <p>Мягкий свет для вечернего чтения. 1 490 ₿</p>
+    </div>
+    <div class="product">
+      <h3>Кружка-непроливайка</h3>
+      <p>Держит тепло, не боится дороги. 690 ₿</p>
+    </div>
+  </section>
+
+  <section class="order" id="order">
+    <h2>Оформить заказ</h2>
+    <p>Выберите товар в каталоге и нажмите кнопку.</p>
+    <button>Заказать</button>
+  </section>
+
+  <footer>© Магазин чудес. Уют и хобби с доставкой.</footer>
+</body>
+</html>

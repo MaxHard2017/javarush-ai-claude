@@ -359,6 +359,27 @@
       },
       "downloadedAt": "2026-09-08T20:20:48.454Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task01": {
+      "dir": "ru/javarush/claude/course/level05/task01",
+      "title": "ТЗ на подбор хостинга 🏠",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task01/index.html": "ru/javarush/claude/course/level05/task01/index.html",
+        "ru/javarush/claude/course/level05/task01/.claude/.gitkeep": "ru/javarush/claude/course/level05/task01/.claude/.gitkeep"
+      },
+      "downloadedAt": "2026-09-12T12:28:40.213Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task05": {
+      "dir": "ru/javarush/claude/course/level05/task05/.claude",
+      "title": "ТЗ на сайт-визитку 💼",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task05/.claude/.gitkeep": "ru/javarush/claude/course/level05/task05/.claude/.gitkeep"
+      },
+      "downloadedAt": "2026-09-12T12:31:57.933Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
