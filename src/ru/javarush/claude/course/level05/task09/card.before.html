@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Визитка Максима — разработчика цифровых продуктов.">
+  <title>Максим — разработчик</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #0d1117;
+      --panel: #151b24;
+      --panel-soft: #1b2330;
+      --paper: #f1f3f5;
+      --muted: #9aa6b5;
+      --line: #303a49;
+      --cobalt: #6685ff;
+      --cobalt-soft: rgba(102, 133, 255, .14);
+      --shadow: 0 24px 70px rgba(0, 0, 0, .32);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+      background: var(--ink);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      padding: 32px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 14% 18%, rgba(102, 133, 255, .09), transparent 26rem),
+        var(--ink);
+      color: var(--paper);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+
+    .card {
+      position: relative;
+      width: min(100%, 980px);
+      min-height: 610px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(260px, .75fr);
+      overflow: hidden;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(115deg, transparent 0 61%, rgba(102, 133, 255, .06) 61% 61.2%, transparent 61.2%);
+    }
+
+    .intro,
+    .contact {
+      position: relative;
+      z-index: 1;
+    }
+
+    .intro {
+      padding: clamp(32px, 7vw, 78px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      border-right: 1px solid var(--line);
+    }
+
+    .eyebrow,
+    .contact-title,
+    .footer-note {
+      margin: 0;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .18em;
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .eyebrow {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 30px;
+      height: 2px;
+      background: var(--cobalt);
+    }
+
+    .hero {
+      max-width: 650px;
+      margin: auto 0;
+      padding: 64px 0;
+    }
+
+    h1 {
+      max-width: 700px;
+      margin: 0;
+      color: var(--paper);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(4.4rem, 13vw, 9.5rem);
+      font-weight: 400;
+      letter-spacing: -.085em;
+      line-height: .82;
+    }
+
+    .name-mark {
+      display: inline-block;
+      width: clamp(16px, 2vw, 24px);
+      height: clamp(16px, 2vw, 24px);
+      margin: 0 0 clamp(34px, 6vw, 66px) clamp(8px, 1.5vw, 16px);
+      border-radius: 50%;
+      background: var(--cobalt);
+      box-shadow: 0 0 0 9px var(--cobalt-soft);
+      vertical-align: top;
+    }
+
+    .bio {
+      max-width: 430px;
+      margin: 42px 0 0;
+      color: var(--muted);
+      font-size: clamp(1rem, 1.7vw, 1.18rem);
+      line-height: 1.7;
+    }
+
+    .contact {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: clamp(28px, 4vw, 48px);
+      background: var(--panel-soft);
+    }
+
+    .contact-title {
+      margin-bottom: auto;
+      color: var(--cobalt);
+    }
+
+    address {
+      margin: 0;
+      font-style: normal;
+    }
+
+    .contact-list {
+      display: grid;
+      gap: 16px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .contact-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      width: fit-content;
+      padding: 8px 0;
+      color: var(--paper);
+      font-size: 1rem;
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+      transition: color 180ms ease, border-color 180ms ease;
+    }
+
+    .contact-link::before {
+      content: "↗";
+      color: var(--cobalt);
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .contact-link:hover {
+      color: var(--cobalt);
+      border-color: var(--cobalt);
+    }
+
+    .contact-link:focus-visible {
+      outline: 2px solid var(--cobalt);
+      outline-offset: 6px;
+      border-color: var(--cobalt);
+    }
+
+    .footer-note {
+      margin-top: 48px;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: none;
+    }
+
+    @media (max-width: 700px) {
+      body {
+        padding: 16px;
+      }
+
+      .card {
+        min-height: auto;
+        grid-template-columns: 1fr;
+      }
+
+      .intro {
+        min-height: 520px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .hero {
+        padding: 56px 0;
+      }
+
+      .contact {
+        min-height: 280px;
+      }
+
+      .contact-title {
+        margin-bottom: 64px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="card" aria-labelledby="name">
+    <section class="intro">
+      <p class="eyebrow">Цифровые продукты · 2026</p>
+      <div class="hero">
+        <h1 id="name">Максим<span class="name-mark" aria-hidden="true"></span></h1>
+        <p class="bio">Разработчик, который превращает сложные идеи в понятные цифровые продукты. Люблю ясные интерфейсы, аккуратный код и решения, которые работают на человека.</p>
+      </div>
+      <p class="footer-note">Открыт к хорошим задачам и новым знакомствам</p>
+    </section>
+
+    <aside class="contact" aria-labelledby="contact-title">
+      <p class="contact-title" id="contact-title">Связаться</p>
+      <address>
+        <ul class="contact-list">
+          <li><a class="contact-link" href="mailto:hello@example.com">hello@example.com</a></li>
+          <li><a class="contact-link" href="https://github.com/maxim">github.com/maxim</a></li>
+        </ul>
+      </address>
+    </aside>
+  </main>
+</body>
+</html>

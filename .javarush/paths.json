@@ -380,6 +380,75 @@
       },
       "downloadedAt": "2026-09-12T12:31:57.933Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task02": {
+      "dir": "ru/javarush/claude/course/level05/task02",
+      "title": "ТЗ на подбор плагина 🧰",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task02/.claude/.gitkeep": "ru/javarush/claude/course/level05/task02/.claude/.gitkeep"
+      },
+      "downloadedAt": "2026-09-12T20:50:05.970Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task03": {
+      "dir": "ru/javarush/claude/course/level05/task03",
+      "title": "ТЗ на доводку лендинга по референсу 🖼️",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task03/index.html": "ru/javarush/claude/course/level05/task03/index.html",
+        "ru/javarush/claude/course/level05/task03/.claude/.gitkeep": "ru/javarush/claude/course/level05/task03/.claude/.gitkeep",
+        "ru/javarush/claude/course/level05/task03/reference.png": "ru/javarush/claude/course/level05/task03/reference.png"
+      },
+      "downloadedAt": "2026-09-12T21:14:17.161Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task08": {
+      "dir": "ru/javarush/claude/course/level05/task08",
+      "title": "Собери визитку — просто примени плагин 🃏",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task08/.claude/.gitkeep": "ru/javarush/claude/course/level05/task08/.claude/.gitkeep",
+        "ru/javarush/claude/course/level05/task08/.claude/plugins/frontend-design/.claude-plugin/plugin.json": "ru/javarush/claude/course/level05/task08/.claude/plugins/frontend-design/.claude-plugin/plugin.json",
+        "ru/javarush/claude/course/level05/task08/.claude/plugins/frontend-design/skills/polish/SKILL.md": "ru/javarush/claude/course/level05/task08/.claude/plugins/frontend-design/skills/polish/SKILL.md",
+        "ru/javarush/claude/course/level05/task08/.claude/plugins/frontend-design/skills/typography/SKILL.md": "ru/javarush/claude/course/level05/task08/.claude/plugins/frontend-design/skills/typography/SKILL.md",
+        "ru/javarush/claude/course/level05/task08/.claude/plugins/frontend-design/README.md": "ru/javarush/claude/course/level05/task08/.claude/plugins/frontend-design/README.md",
+        "ru/javarush/claude/course/level05/task08/TZ_BUSINESS_CARD.md": "ru/javarush/claude/course/level05/task08/TZ_BUSINESS_CARD.md"
+      },
+      "downloadedAt": "2026-09-12T21:41:44.860Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task09": {
+      "dir": "ru/javarush/claude/course/level05/task09",
+      "title": "Собери визитку и почувствуй разницу до/после 🧑‍🎨",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task09/.claude/.gitkeep": "ru/javarush/claude/course/level05/task09/.claude/.gitkeep",
+        "ru/javarush/claude/course/level05/task09/TZ_BUSINESS_CARD.md": "ru/javarush/claude/course/level05/task09/TZ_BUSINESS_CARD.md"
+      },
+      "downloadedAt": "2026-09-12T22:18:48.615Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task11": {
+      "dir": "ru/javarush/claude/course/level05/task11",
+      "title": "Найди плагин под тему 🔎",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task11/.claude/.gitkeep": "ru/javarush/claude/course/level05/task11/.claude/.gitkeep"
+      },
+      "downloadedAt": "2026-09-12T22:42:53.140Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task12": {
+      "dir": "ru/javarush/claude/course/level05/task12",
+      "title": "Поставь плагин из каталога 🛒",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task12/.claude/.gitkeep": "ru/javarush/claude/course/level05/task12/.claude/.gitkeep"
+      },
+      "downloadedAt": "2026-09-12T22:55:08.983Z",
+      "apiUrl": "https://javarush.com",
+      "solutionApplied": false
     }
   }
 }
