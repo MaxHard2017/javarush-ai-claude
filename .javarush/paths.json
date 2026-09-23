@@ -449,6 +449,45 @@
       "downloadedAt": "2026-09-12T22:55:08.983Z",
       "apiUrl": "https://javarush.com",
       "solutionApplied": false
+    },
+    "ru.javarush.claude.course.level05.task04": {
+      "dir": "ru/javarush/claude/course/level05/task04",
+      "title": "Отчёт наверх на корпоративном языке 📊",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task04/.claude/.gitkeep": "ru/javarush/claude/course/level05/task04/.claude/.gitkeep"
+      },
+      "downloadedAt": "2026-09-22T21:10:10.314Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task06": {
+      "dir": "ru/javarush/claude/course/level05/task06",
+      "title": "Доведи лендинг по референсу — только вид 🎨",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task06/index.html": "ru/javarush/claude/course/level05/task06/index.html",
+        "ru/javarush/claude/course/level05/task06/.claude/.gitkeep": "ru/javarush/claude/course/level05/task06/.claude/.gitkeep",
+        "ru/javarush/claude/course/level05/task06/.claude/CLAUDE.md": "ru/javarush/claude/course/level05/task06/.claude/CLAUDE.md",
+        "ru/javarush/claude/course/level05/task06/reference.png": "ru/javarush/claude/course/level05/task06/reference.png",
+        "ru/javarush/claude/course/level05/task06/TZ_LANDING_REFERENCE.md": "ru/javarush/claude/course/level05/task06/TZ_LANDING_REFERENCE.md"
+      },
+      "downloadedAt": "2026-09-22T21:33:29.495Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task07": {
+      "dir": "ru/javarush/claude/course/level05/task07",
+      "title": "Добей лендинг дизайн-плагином 💎",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task07/index.html": "ru/javarush/claude/course/level05/task07/index.html",
+        "ru/javarush/claude/course/level05/task07/.claude/plugins/frontend-design/.claude-plugin/plugin.json": "ru/javarush/claude/course/level05/task07/.claude/plugins/frontend-design/.claude-plugin/plugin.json",
+        "ru/javarush/claude/course/level05/task07/.claude/plugins/frontend-design/skills/polish/SKILL.md": "ru/javarush/claude/course/level05/task07/.claude/plugins/frontend-design/skills/polish/SKILL.md",
+        "ru/javarush/claude/course/level05/task07/.claude/plugins/frontend-design/skills/typography/SKILL.md": "ru/javarush/claude/course/level05/task07/.claude/plugins/frontend-design/skills/typography/SKILL.md",
+        "ru/javarush/claude/course/level05/task07/.claude/plugins/frontend-design/README.md": "ru/javarush/claude/course/level05/task07/.claude/plugins/frontend-design/README.md",
+        "ru/javarush/claude/course/level05/task07/TZ_LANDING_REFERENCE.md": "ru/javarush/claude/course/level05/task07/TZ_LANDING_REFERENCE.md"
+      },
+      "downloadedAt": "2026-09-23T17:52:54.544Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }

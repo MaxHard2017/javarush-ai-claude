@@ -1,0 +1,8 @@
+{
+  "name": "frontend-design",
+  "description": "Навести визуальный лоск фронтенда: типографика, отступы, палитра, тени, согласованность стиля веб-страницы.",
+  "version": "1.2.0",
+  "author": {
+    "name": "claude-plugins-official"
+  }
+}

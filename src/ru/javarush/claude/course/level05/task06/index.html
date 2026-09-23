@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Магазин чудес</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #f7f9fc;
+      color: #1f2937;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 68px;
+      padding: 0 max(20px, calc((100% - 836px) / 2));
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1;
+      letter-spacing: -0.4px;
+    }
+
+    nav a {
+      margin-left: 28px;
+      color: #596579;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    nav a:hover,
+    nav a:focus-visible {
+      color: #4f46e5;
+    }
+
+    .hero,
+    .products,
+    .order,
+    footer {
+      width: min(836px, calc(100% - 40px));
+      margin-right: auto;
+      margin-left: auto;
+    }
+
+    .hero {
+      padding-top: 56px;
+      padding-bottom: 56px;
+    }
+
+    .hero h2 {
+      max-width: 600px;
+      margin: 0 0 16px;
+      font-size: 44px;
+      line-height: 1.15;
+      letter-spacing: -1.4px;
+    }
+
+    .hero p {
+      max-width: 590px;
+      margin: 0;
+      color: #596579;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      background: #4f46e5;
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      box-shadow: 0 10px 22px rgba(79, 70, 229, 0.22);
+      transition: background-color 160ms ease, transform 160ms ease;
+    }
+
+    button:hover,
+    button:focus-visible {
+      background: #4338ca;
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    .hero button {
+      width: 197px;
+      height: 46px;
+      margin-top: 28px;
+    }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .product {
+      min-height: 159px;
+      padding: 28px;
+      background: #fff;
+      border: 1px solid #e1e7f0;
+      border-radius: 16px;
+      box-shadow: 0 12px 26px rgba(35, 53, 84, 0.07);
+    }
+
+    .product h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      line-height: 1.25;
+    }
+
+    .product p {
+      margin: 0;
+      color: #596579;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .order {
+      min-height: 235px;
+      margin-top: 56px;
+      padding: 48px 24px;
+      background: #eef2ff;
+      border-radius: 18px;
+      text-align: center;
+    }
+
+    .order h2 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.2;
+      letter-spacing: -0.8px;
+    }
+
+    .order p {
+      margin: 12px 0 0;
+      color: #596579;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .order button {
+      width: 126px;
+      height: 46px;
+      margin-top: 20px;
+    }
+
+    footer {
+      padding: 28px 0 36px;
+      color: #7a8699;
+      font-size: 13px;
+      text-align: center;
+    }
+
+    @media (max-width: 700px) {
+      header {
+        min-height: 64px;
+      }
+
+      nav a {
+        margin-left: 16px;
+        font-size: 14px;
+      }
+
+      .hero {
+        padding-top: 44px;
+        padding-bottom: 44px;
+      }
+
+      .hero h2 {
+        font-size: 36px;
+      }
+
+      .products {
+        grid-template-columns: 1fr;
+      }
+
+      .order {
+        margin-top: 40px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      button {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Магазин чудес</h1>
+    <nav><a href="#catalog">Каталог</a><a href="#order">Заказать</a></nav>
+  </header>
+
+  <section class="hero">
+    <h2>Всё для дома и хобби в одном месте</h2>
+    <p>Товары для тех, кто любит уют и мастерит своими руками. Доставка по стране.</p>
+    <button>Смотреть каталог</button>
+  </section>
+
+  <section class="products" id="catalog">
+    <div class="product">
+      <h3>Набор для рукоделия</h3>
+      <p>Всё, чтобы начать: нитки, крючки, схемы. 890 ₿</p>
+    </div>
+    <div class="product">
+      <h3>Настольная лампа «Тепло»</h3>
+      <p>Мягкий свет для вечернего чтения. 1 490 ₿</p>
+    </div>
+    <div class="product">
+      <h3>Кружка-непроливайка</h3>
+      <p>Держит тепло, не боится дороги. 690 ₿</p>
+    </div>
+  </section>
+
+  <section class="order" id="order">
+    <h2>Оформить заказ</h2>
+    <p>Выберите товар в каталоге и нажмите кнопку.</p>
+    <button>Заказать</button>
+  </section>
+
+  <footer>© Магазин чудес. Уют и хобби с доставкой.</footer>
+</body>
+</html>
