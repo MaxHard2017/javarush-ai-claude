@@ -488,6 +488,20 @@
       },
       "downloadedAt": "2026-09-23T17:52:54.544Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task10": {
+      "dir": "ru/javarush/claude/course/level05/task10",
+      "title": "Собери лендинг под сдачу целиком 🏁",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task10/index.html": "ru/javarush/claude/course/level05/task10/index.html",
+        "ru/javarush/claude/course/level05/task10/.claude/.gitkeep": "ru/javarush/claude/course/level05/task10/.claude/.gitkeep",
+        "ru/javarush/claude/course/level05/task10/.claude/CLAUDE.md": "ru/javarush/claude/course/level05/task10/.claude/CLAUDE.md",
+        "ru/javarush/claude/course/level05/task10/reference.png": "ru/javarush/claude/course/level05/task10/reference.png",
+        "ru/javarush/claude/course/level05/task10/TZ_LANDING_REFERENCE.md": "ru/javarush/claude/course/level05/task10/TZ_LANDING_REFERENCE.md"
+      },
+      "downloadedAt": "2026-09-23T21:25:06.762Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }

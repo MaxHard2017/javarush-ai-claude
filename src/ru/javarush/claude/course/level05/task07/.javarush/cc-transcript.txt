@@ -62,3 +62,4 @@
 [20:01:02] (SessionStart) 🚪 Сессия возобновлена (/resume)
 [20:30:15] (SessionStart) 🚪 Студент открыл сессию
 [20:30:15] (SessionEnd) 🚪 Сессия закрыта (other)
+[21:26:42] (SessionEnd) 🚪 Сессия закрыта (other)
