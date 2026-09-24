@@ -3,66 +3,290 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#ffffff">
   <title>Магазин чудес</title>
   <style>
-    /* Сырой черновик: системный шрифт, серый фон, слипшиеся отступы, без оформления. */
+    :root {
+      color-scheme: light;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #202636;
+      background: #f7f9fc;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      --page: #f7f9fc;
+      --surface: #ffffff;
+      --ink: #202636;
+      --muted: #5c6678;
+      --line: #e1e8f2;
+      --accent: #4c3fe0;
+      --order-panel: #eef2fc;
+      --space-1: 8px;
+      --space-1-5: 12px;
+      --space-2: 16px;
+      --space-3: 24px;
+      --space-4: 32px;
+      --space-5: 40px;
+      --space-6: 48px;
+      --section-space: 56px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
     body {
-      font-family: Times, serif;
-      background: #9a9a9a;
-      color: #222;
-      margin: 4px;
+      min-width: 320px;
+      margin: 0;
+      background: var(--page);
+      color: var(--ink);
     }
-    header { background: #7d7d7d; padding: 4px; }
-    header h1 { margin: 0; font-size: 20px; }
-    nav a { margin-right: 8px; color: #333; }
-    .hero { padding: 4px; }
-    .hero h2 { font-size: 18px; margin: 2px 0; }
-    .hero p { margin: 2px 0; }
-    .products { }
+
+    a { color: inherit; }
+
+    .container {
+      width: min(1200px, calc(100% - 120px));
+      margin-inline: auto;
+    }
+
+    .site-header {
+      height: 68px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .header-content {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.2;
+      font-weight: 700;
+      letter-spacing: -0.45px;
+    }
+
+    .site-nav {
+      display: flex;
+      align-items: center;
+      gap: 26px;
+    }
+
+    .site-nav a {
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+
+    .site-nav a:hover { color: var(--accent); }
+
+    .hero { padding-top: var(--section-space); }
+
+    .hero h2 {
+      max-width: 570px;
+      margin: 0;
+      font-size: clamp(40px, 4.7vw, 46px);
+      line-height: 1.12;
+      letter-spacing: -1.7px;
+      font-weight: 700;
+    }
+
+    .hero p {
+      max-width: 590px;
+      margin: var(--space-2) 0 28px;
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1.5;
+    }
+
+    .button {
+      min-height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 28px;
+      border: 0;
+      border-radius: 11px;
+      background: var(--accent);
+      box-shadow: 0 10px 22px rgba(76, 63, 224, 0.18);
+      color: #ffffff;
+      font: inherit;
+      font-size: 16px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: background-color 150ms ease, transform 150ms ease;
+    }
+
+    .button:hover {
+      background: #4033ca;
+      transform: translateY(-1px);
+    }
+
+    .button:active { transform: translateY(0); }
+
+    .products {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-3);
+      margin-top: var(--section-space);
+    }
+
     .product {
-      background: #b0b0b0;
-      border: 1px solid #666;
-      padding: 3px;
-      margin: 2px 0;
+      min-height: 159px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: var(--surface);
+      box-shadow: 0 10px 26px rgba(32, 48, 78, 0.045);
     }
-    .product h3 { font-size: 15px; margin: 1px 0; }
-    .product p { margin: 1px 0; font-size: 13px; }
-    button { background: #666; color: #fff; border: 0; padding: 4px 8px; }
-    footer { font-size: 12px; margin-top: 4px; }
+
+    .product h3 {
+      margin: 0 0 var(--space-1-5);
+      font-size: 19px;
+      line-height: 1.32;
+      letter-spacing: -0.25px;
+    }
+
+    .product p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.55;
+    }
+
+    .order {
+      margin-top: var(--section-space);
+      padding: var(--space-6) 24px;
+      border-radius: 20px;
+      background: var(--order-panel);
+      text-align: center;
+    }
+
+    .order h2 {
+      margin: 0;
+      font-size: 34px;
+      line-height: 1.22;
+      letter-spacing: -0.9px;
+    }
+
+    .order p {
+      margin: var(--space-1-5) 0 var(--space-3);
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    footer {
+      padding: var(--space-3) 0 var(--space-2);
+      color: var(--muted);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    :focus-visible {
+      outline: 3px solid #9a91ff;
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 700px) {
+      .container { width: calc(100% - 40px); }
+
+      .hero { padding-top: 42px; }
+
+      .hero h2 {
+        max-width: 520px;
+        font-size: clamp(36px, 8vw, 44px);
+        letter-spacing: -1.35px;
+      }
+
+      .hero p { font-size: 17px; }
+
+      .products {
+        grid-template-columns: 1fr;
+        gap: var(--space-2);
+        margin-top: var(--space-5);
+      }
+
+      .product { min-height: auto; padding: var(--space-3); }
+
+      .order {
+        margin-top: var(--space-5);
+        padding: var(--space-5) 20px;
+      }
+
+      .order h2 { font-size: 29px; }
+    }
+
+    @media (max-width: 420px) {
+      .site-header { height: 64px; }
+      .header-content { gap: 12px; }
+      .brand { font-size: 19px; }
+      .site-nav { gap: 10px; }
+      .site-nav a { font-size: 14px; }
+      .hero h2 { font-size: 36px; }
+      .button { padding-inline: 23px; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Магазин чудес</h1>
-    <nav><a href="#catalog">Каталог</a><a href="#order">Заказать</a></nav>
+  <header class="site-header">
+    <div class="container header-content">
+      <h1 class="brand">Магазин чудес</h1>
+      <nav class="site-nav" aria-label="Основная навигация">
+        <a href="#catalog">Каталог</a>
+        <a href="#order">Заказать</a>
+      </nav>
+    </div>
   </header>
 
-  <section class="hero">
-    <h2>Всё для дома и хобби в одном месте</h2>
-    <p>Товары для тех, кто любит уют и мастерит своими руками. Доставка по стране.</p>
-    <button>Смотреть каталог</button>
-  </section>
+  <main class="container">
+    <section class="hero" aria-labelledby="hero-title">
+      <h2 id="hero-title">Всё для дома и хобби в одном месте</h2>
+      <p>Товары для тех, кто любит уют и мастерит своими руками. Доставка по стране.</p>
+      <button class="button" type="button">Смотреть каталог</button>
+    </section>
 
-  <section class="products" id="catalog">
-    <div class="product">
-      <h3>Набор для рукоделия</h3>
-      <p>Всё, чтобы начать: нитки, крючки, схемы. 890 ₿</p>
-    </div>
-    <div class="product">
-      <h3>Настольная лампа «Тепло»</h3>
-      <p>Мягкий свет для вечернего чтения. 1 490 ₿</p>
-    </div>
-    <div class="product">
-      <h3>Кружка-непроливайка</h3>
-      <p>Держит тепло, не боится дороги. 690 ₿</p>
-    </div>
-  </section>
+    <section class="products" id="catalog" aria-label="Каталог товаров">
+      <article class="product">
+        <h3>Набор для рукоделия</h3>
+        <p>Всё, чтобы начать: нитки, крючки, схемы. 890 ₿</p>
+      </article>
+      <article class="product">
+        <h3>Настольная лампа «Тепло»</h3>
+        <p>Мягкий свет для вечернего чтения. 1 490 ₿</p>
+      </article>
+      <article class="product">
+        <h3>Кружка-непроливайка</h3>
+        <p>Держит тепло, не боится дороги. 690 ₿</p>
+      </article>
+    </section>
 
-  <section class="order" id="order">
-    <h2>Оформить заказ</h2>
-    <p>Выберите товар в каталоге и нажмите кнопку.</p>
-    <button>Заказать</button>
-  </section>
+    <section class="order" id="order" aria-labelledby="order-title">
+      <h2 id="order-title">Оформить заказ</h2>
+      <p>Выберите товар в каталоге и нажмите кнопку.</p>
+      <button class="button" type="button">Заказать</button>
+    </section>
+  </main>
 
   <footer>© Магазин чудес. Уют и хобби с доставкой.</footer>
 </body>
