@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Магазин чудес</title>
+  <style>
+    /* Доведённый вид: светлый фон, крупные заголовки, карточки с воздухом и тенью. */
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f7f9fc;
+      color: #2a2f36;
+      margin: 0;
+      line-height: 1.55;
+    }
+    .wrap { max-width: 960px; margin: 0 auto; padding: 0 24px; }
+    header {
+      background: #ffffff;
+      padding: 20px 0;
+      border-bottom: 1px solid #eef1f6;
+    }
+    header .wrap { display: flex; align-items: center; justify-content: space-between; }
+    header h1 { margin: 0; font-size: 26px; }
+    nav a { margin-left: 24px; color: #5a6cff; text-decoration: none; }
+    .hero { padding: 80px 0; text-align: center; }
+    .hero h2 { font-size: 44px; margin: 0 0 16px; line-height: 1.15; }
+    .hero p { margin: 0 auto 28px; max-width: 560px; font-size: 18px; color: #5a6472; }
+    .products {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      padding: 24px 0 64px;
+    }
+    .product {
+      background: #ffffff;
+      border: 1px solid #eef1f6;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+    }
+    .product h3 { font-size: 19px; margin: 0 0 8px; }
+    .product p { margin: 0; font-size: 15px; color: #5a6472; }
+    button {
+      background: linear-gradient(90deg, #6a8cff, #9b6aff);
+      color: #fff;
+      border: 0;
+      padding: 14px 28px;
+      font-size: 16px;
+      font-weight: 700;
+      border-radius: 12px;
+      cursor: pointer;
+      box-shadow: 0 6px 18px rgba(120, 90, 255, 0.3);
+    }
+    .order { padding: 72px 0; text-align: center; background: #eef2fb; }
+    .order h2 { font-size: 32px; margin: 0 0 16px; }
+    .order p { margin: 0 0 24px; color: #5a6472; }
+    footer { padding: 28px 0; text-align: center; color: #9aa4b2; font-size: 14px; }
+    @media (max-width: 720px) { .products { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap">
+      <h1>Магазин чудес</h1>
+      <nav><a href="#catalog">Каталог</a><a href="#order">Заказать</a></nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <h2>Всё для дома и хобби в одном месте</h2>
+      <p>Товары для тех, кто любит уют и мастерит своими руками. Доставка по стране.</p>
+      <button>Смотреть каталог</button>
+    </div>
+  </section>
+
+  <section class="products wrap" id="catalog">
+    <div class="product">
+      <h3>Набор для рукоделия</h3>
+      <p>Всё, чтобы начать: нитки, крючки, схемы. 890 ₿</p>
+    </div>
+    <div class="product">
+      <h3>Настольная лампа «Тепло»</h3>
+      <p>Мягкий свет для вечернего чтения. 1 490 ₿</p>
+    </div>
+    <div class="product">
+      <h3>Кружка-непроливайка</h3>
+      <p>Держит тепло, не боится дороги. 690 ₿</p>
+    </div>
+  </section>
+
+  <section class="order" id="order">
+    <div class="wrap">
+      <h2>Оформить заказ</h2>
+      <p>Выберите товар в каталоге и нажмите кнопку.</p>
+      <button>Заказать</button>
+    </div>
+  </section>
+
+  <footer>© Магазин чудес. Уют и хобби с доставкой.</footer>
+</body>
+</html>

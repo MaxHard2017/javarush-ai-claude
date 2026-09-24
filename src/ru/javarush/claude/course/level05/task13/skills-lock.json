@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "tiiny-host": {
+      "source": "tiiny-host/skills",
+      "sourceType": "github",
+      "skillPath": "skills/SKILL.md",
+      "computedHash": "ecf6052f297fce979d4c3fbe40a49c8d209c6f4a84bc6e7c5c44818e4cd7578d"
+    }
+  }
+}

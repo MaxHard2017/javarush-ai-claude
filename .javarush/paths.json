@@ -504,13 +504,35 @@
       "apiUrl": "https://javarush.com"
     },
     "ru.javarush.claude.course.level05.task13": {
-      "dir": "ru/javarush/claude/course/level05/task13/.claude/skills",
+      "dir": "ru/javarush/claude/course/level05/task13",
       "title": "Поставь инструмент деплоя 🚀",
       "level": 5,
       "serverPaths": {
-        "ru/javarush/claude/course/level05/task13/.claude/skills/.gitkeep": "ru/javarush/claude/course/level05/task13/.claude/skills/.gitkeep"
+        "ru/javarush/claude/course/level05/task13": "ru/javarush/claude/course/level05/task13"
       },
       "downloadedAt": "2026-09-23T23:31:08.451Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task14": {
+      "dir": "ru/javarush/claude/course/level05/task14",
+      "title": "Задеплой лендинг наружу 🌍",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task14/index.html": "ru/javarush/claude/course/level05/task14/index.html",
+        "ru/javarush/claude/course/level05/task14/.claude/skills/tiiny-host/SKILL.md": "ru/javarush/claude/course/level05/task14/.claude/skills/tiiny-host/SKILL.md"
+      },
+      "downloadedAt": "2026-09-24T11:41:31.850Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level05.task15": {
+      "dir": "ru/javarush/claude/course/level05/task15",
+      "title": "Ключ в чат — так делать нельзя 🔑",
+      "level": 5,
+      "serverPaths": {
+        "ru/javarush/claude/course/level05/task15/.claude/.gitkeep": "ru/javarush/claude/course/level05/task15/.claude/.gitkeep",
+        "ru/javarush/claude/course/level05/task15/HOSTING_KEY.txt": "ru/javarush/claude/course/level05/task15/HOSTING_KEY.txt"
+      },
+      "downloadedAt": "2026-09-24T13:04:58.673Z",
       "apiUrl": "https://javarush.com"
     }
   }
