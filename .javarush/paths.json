@@ -556,6 +556,17 @@
       },
       "downloadedAt": "2026-10-04T09:10:31.457Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task04": {
+      "dir": "ru/javarush/claude/course/level06/task04",
+      "title": "Разбор находок: что чиню, что заворачиваю ⚖️",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task04/.claude/.gitkeep": "ru/javarush/claude/course/level06/task04/.claude/.gitkeep",
+        "ru/javarush/claude/course/level06/task04/REVIEW_REPORT.md": "ru/javarush/claude/course/level06/task04/REVIEW_REPORT.md"
+      },
+      "downloadedAt": "2026-10-04T13:00:16.124Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
