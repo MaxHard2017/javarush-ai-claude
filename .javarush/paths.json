@@ -534,6 +534,28 @@
       },
       "downloadedAt": "2026-09-24T13:04:58.673Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task01": {
+      "dir": "ru/javarush/claude/course/level06/task01",
+      "title": "Бриф для придиры 📋",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task01/.claude/.gitkeep": "ru/javarush/claude/course/level06/task01/.claude/.gitkeep",
+        "ru/javarush/claude/course/level06/task01/game/index.html": "ru/javarush/claude/course/level06/task01/game/index.html"
+      },
+      "downloadedAt": "2026-09-30T21:26:55.625Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task02": {
+      "dir": "ru/javarush/claude/course/level06/task02",
+      "title": "Роль проверяющего файлом 🕵️",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task02/.claude/.gitkeep": "ru/javarush/claude/course/level06/task02/.claude/.gitkeep",
+        "ru/javarush/claude/course/level06/task02/game/index.html": "ru/javarush/claude/course/level06/task02/game/index.html"
+      },
+      "downloadedAt": "2026-10-04T09:10:31.457Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
