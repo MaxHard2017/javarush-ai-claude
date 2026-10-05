@@ -577,6 +577,17 @@
       },
       "downloadedAt": "2026-10-04T13:43:24.225Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task11": {
+      "dir": "ru/javarush/claude/course/level06/task11",
+      "title": "Работник подхватился на лету 👀",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task11/.claude/agents/.gitkeep": "ru/javarush/claude/course/level06/task11/.claude/agents/.gitkeep",
+        "ru/javarush/claude/course/level06/task11/game/index.html": "ru/javarush/claude/course/level06/task11/game/index.html"
+      },
+      "downloadedAt": "2026-10-05T05:46:42.179Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
