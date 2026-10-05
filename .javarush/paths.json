@@ -588,6 +588,17 @@
       },
       "downloadedAt": "2026-10-05T05:46:42.179Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task12": {
+      "dir": "ru/javarush/claude/course/level06/task12",
+      "title": "Позови работника через собаку 🐕",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task12/.claude/agents/reviewer.md": "ru/javarush/claude/course/level06/task12/.claude/agents/reviewer.md",
+        "ru/javarush/claude/course/level06/task12/game/index.html": "ru/javarush/claude/course/level06/task12/game/index.html"
+      },
+      "downloadedAt": "2026-10-05T14:53:00.760Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
