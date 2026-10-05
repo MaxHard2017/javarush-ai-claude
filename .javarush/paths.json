@@ -567,6 +567,16 @@
       },
       "downloadedAt": "2026-10-04T13:00:16.124Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task03": {
+      "dir": "ru/javarush/claude/course/level06/task03",
+      "title": "ТЗ на установку голосового ввода 🎤",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task03/.claude/.gitkeep": "ru/javarush/claude/course/level06/task03/.claude/.gitkeep"
+      },
+      "downloadedAt": "2026-10-04T13:43:24.225Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
