@@ -609,6 +609,16 @@
       },
       "downloadedAt": "2026-10-05T15:47:11.911Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task14": {
+      "dir": "ru/javarush/claude/course/level06/task14/game",
+      "title": "Включи диктовку в сессии 🗣️",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task14/game/index.html": "ru/javarush/claude/course/level06/task14/game/index.html"
+      },
+      "downloadedAt": "2026-10-05T19:17:45.663Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
