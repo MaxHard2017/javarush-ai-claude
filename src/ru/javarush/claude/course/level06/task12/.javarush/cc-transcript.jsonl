@@ -43,3 +43,4 @@
 {"ts":"2026-10-05T15:04:15.191Z","event":"Stop","actor":"agent","action":"reply","text":"[Агент Лёха] ⚠️ Нашёл три подтверждённых шероховатости. Ревьюер проверил код статически; **в браузер","permission_mode":"auto","session_id":"0c4678ce-88a0-4501-b28e-9ef44e7d8791"}
 {"ts":"2026-10-05T15:05:15.351Z","event":"Notification","actor":"system","action":"notification","message":"Claude is waiting for your input","session_id":"0c4678ce-88a0-4501-b28e-9ef44e7d8791"}
 {"ts":"2026-10-05T15:07:19.665Z","event":"SubagentStop","actor":"agent","action":"subagent_reply","agent_id":"a65b7d59f130f2d45","text":"Мы завершили статическое ревью «Змейки» в `game/index.html` и нашли три замечания: ложное столкновен","permission_mode":"auto","session_id":"0c4678ce-88a0-4501-b28e-9ef44e7d8791"}
+{"ts":"2026-10-05T15:48:05.247Z","event":"SessionEnd","actor":"student","action":"session_end","reason":"other","session_id":"0c4678ce-88a0-4501-b28e-9ef44e7d8791"}
