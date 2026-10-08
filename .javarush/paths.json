@@ -630,6 +630,17 @@
       },
       "downloadedAt": "2026-10-08T09:49:22.171Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task05": {
+      "dir": "ru/javarush/claude/course/level06/task05",
+      "title": "Роль для второго работника 🔦",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task05/.claude/.gitkeep": "ru/javarush/claude/course/level06/task05/.claude/.gitkeep",
+        "ru/javarush/claude/course/level06/task05/game/index.html": "ru/javarush/claude/course/level06/task05/game/index.html"
+      },
+      "downloadedAt": "2026-10-08T10:09:47.591Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
