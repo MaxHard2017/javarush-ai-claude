@@ -677,6 +677,29 @@
       },
       "downloadedAt": "2026-10-08T21:57:16.812Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task10": {
+      "dir": "ru/javarush/claude/course/level06/task10",
+      "title": "Прогони второго работника по его роли 🎯",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task10/.claude/agents/playtester.md": "ru/javarush/claude/course/level06/task10/.claude/agents/playtester.md",
+        "ru/javarush/claude/course/level06/task10/game/index.html": "ru/javarush/claude/course/level06/task10/game/index.html"
+      },
+      "downloadedAt": "2026-10-08T22:14:01.318Z",
+      "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task06": {
+      "dir": "ru/javarush/claude/course/level06/task06",
+      "title": "Запусти придиру по брифу 🔍",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task06/.claude/agents/reviewer.md": "ru/javarush/claude/course/level06/task06/.claude/agents/reviewer.md",
+        "ru/javarush/claude/course/level06/task06/REVIEW_BRIEF.md": "ru/javarush/claude/course/level06/task06/REVIEW_BRIEF.md",
+        "ru/javarush/claude/course/level06/task06/game/index.html": "ru/javarush/claude/course/level06/task06/game/index.html"
+      },
+      "downloadedAt": "2026-10-08T22:25:57.728Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
