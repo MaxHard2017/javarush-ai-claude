@@ -665,6 +665,18 @@
       },
       "downloadedAt": "2026-10-08T15:39:47.120Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task09": {
+      "dir": "ru/javarush/claude/course/level06/task09",
+      "title": "Добавь свою хотелку — звук 🔊",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task09/.claude/.gitkeep": "ru/javarush/claude/course/level06/task09/.claude/.gitkeep",
+        "ru/javarush/claude/course/level06/task09/TZ_SOUND.md": "ru/javarush/claude/course/level06/task09/TZ_SOUND.md",
+        "ru/javarush/claude/course/level06/task09/game/index.html": "ru/javarush/claude/course/level06/task09/game/index.html"
+      },
+      "downloadedAt": "2026-10-08T21:57:16.812Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
