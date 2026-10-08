@@ -641,6 +641,18 @@
       },
       "downloadedAt": "2026-10-08T10:09:47.591Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task07": {
+      "dir": "ru/javarush/claude/course/level06/task07",
+      "title": "Почини найденный баг руками агента 🐛",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task07/.claude/.gitkeep": "ru/javarush/claude/course/level06/task07/.claude/.gitkeep",
+        "ru/javarush/claude/course/level06/task07/REVIEW_REPORT.md": "ru/javarush/claude/course/level06/task07/REVIEW_REPORT.md",
+        "ru/javarush/claude/course/level06/task07/game/index.html": "ru/javarush/claude/course/level06/task07/game/index.html"
+      },
+      "downloadedAt": "2026-10-08T10:53:52.334Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
