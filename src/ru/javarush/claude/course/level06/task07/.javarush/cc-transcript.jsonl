@@ -212,3 +212,4 @@
 {"ts":"2026-10-08T15:33:27.953Z","event":"Stop","actor":"agent","action":"reply","text":"[Агент Саня] ✅ Восстановил обработку управления и убрал добавленную подсказку. Исправление столкнове","permission_mode":"auto","session_id":"8393adb6-ad8c-4cc4-9a3f-35c9e936a77b"}
 {"ts":"2026-10-08T15:34:28.299Z","event":"Notification","actor":"system","action":"notification","message":"Claude is waiting for your input","session_id":"8393adb6-ad8c-4cc4-9a3f-35c9e936a77b"}
 {"ts":"2026-10-08T15:36:58.932Z","event":"SubagentStop","actor":"agent","action":"subagent_reply","agent_id":"aac0c8c440ad9460f","text":"Исправляем столкновения Змейки, сохраняя исходное движение и управление; правка оставлена в `checkCo","permission_mode":"auto","session_id":"8393adb6-ad8c-4cc4-9a3f-35c9e936a77b"}
+{"ts":"2026-10-08T16:54:40.864Z","event":"SessionEnd","actor":"student","action":"session_end","reason":"other","session_id":"8393adb6-ad8c-4cc4-9a3f-35c9e936a77b"}
