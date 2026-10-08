@@ -653,6 +653,18 @@
       },
       "downloadedAt": "2026-10-08T10:53:52.334Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level06.task08": {
+      "dir": "ru/javarush/claude/course/level06/task08",
+      "title": "Внедри выбранное, заверни лишнее 🎚️",
+      "level": 6,
+      "serverPaths": {
+        "ru/javarush/claude/course/level06/task08/.claude/.gitkeep": "ru/javarush/claude/course/level06/task08/.claude/.gitkeep",
+        "ru/javarush/claude/course/level06/task08/REVIEW_DECISION.md": "ru/javarush/claude/course/level06/task08/REVIEW_DECISION.md",
+        "ru/javarush/claude/course/level06/task08/game/index.html": "ru/javarush/claude/course/level06/task08/game/index.html"
+      },
+      "downloadedAt": "2026-10-08T15:39:47.120Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
