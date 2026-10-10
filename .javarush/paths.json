@@ -721,6 +721,16 @@
       },
       "downloadedAt": "2026-10-10T18:55:19.235Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level07.task03": {
+      "dir": "ru/javarush/claude/course/level07/task03",
+      "title": "План Б на случай тишины 🔌",
+      "level": 7,
+      "serverPaths": {
+        "ru/javarush/claude/course/level07/task03/.claude/.gitkeep": "ru/javarush/claude/course/level07/task03/.claude/.gitkeep"
+      },
+      "downloadedAt": "2026-10-10T19:13:27.304Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
