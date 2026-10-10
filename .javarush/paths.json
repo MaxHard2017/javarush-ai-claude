@@ -700,6 +700,16 @@
       },
       "downloadedAt": "2026-10-08T22:25:57.728Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level07.task01": {
+      "dir": "ru/javarush/claude/course/level07/task01",
+      "title": "Бланк заказа для радара 📋",
+      "level": 7,
+      "serverPaths": {
+        "ru/javarush/claude/course/level07/task01/.claude/.gitkeep": "ru/javarush/claude/course/level07/task01/.claude/.gitkeep"
+      },
+      "downloadedAt": "2026-10-10T02:32:50.434Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
