@@ -731,6 +731,19 @@
       },
       "downloadedAt": "2026-10-10T19:13:27.304Z",
       "apiUrl": "https://javarush.com"
+    },
+    "ru.javarush.claude.course.level07.task04": {
+      "dir": "ru/javarush/claude/course/level07/task04",
+      "title": "ТЗ на радар целиком 📄",
+      "level": 7,
+      "serverPaths": {
+        "ru/javarush/claude/course/level07/task04/FALLBACK.md": "ru/javarush/claude/course/level07/task04/FALLBACK.md",
+        "ru/javarush/claude/course/level07/task04/.claude/.gitkeep": "ru/javarush/claude/course/level07/task04/.claude/.gitkeep",
+        "ru/javarush/claude/course/level07/task04/DATA_SCHEMA.md": "ru/javarush/claude/course/level07/task04/DATA_SCHEMA.md",
+        "ru/javarush/claude/course/level07/task04/DATA_REQUEST.md": "ru/javarush/claude/course/level07/task04/DATA_REQUEST.md"
+      },
+      "downloadedAt": "2026-10-10T19:27:10.337Z",
+      "apiUrl": "https://javarush.com"
     }
   }
 }
